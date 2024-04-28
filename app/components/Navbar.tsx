@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AuthButton from "./AuthButton";
 
 function NavBar() {
   return (
@@ -6,9 +7,10 @@ function NavBar() {
       <Link href="/" className="p-3 hover:bg-slate-300">
         Home
       </Link>
-      <Link href="/login" className="p-3 hover:bg-slate-300">
+      <AuthButton />
+      {/* <Link href="/login" className="p-3 hover:bg-slate-300">
         Login(todo)
-      </Link>
+      </Link> */}
     </div>
   );
 }

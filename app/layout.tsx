@@ -1,4 +1,5 @@
 import NavBar from "./components/Navbar";
+import AuthContext from "./context/AuthContext";
 import "./globals.css";
 
 export const metadata = {
@@ -10,8 +11,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
-        <NavBar />
-        {children}
+        <AuthContext>
+          <NavBar />
+          {children}
+        </AuthContext>
       </body>
     </html>
   );
