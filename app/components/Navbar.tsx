@@ -6,7 +6,9 @@ function NavBar() {
       <Link href="/" className="p-3 hover:bg-slate-300">
         Home
       </Link>
-      <div className="cursor-pointer p-3 hover:bg-slate-300">Login(todo)</div>
+      <Link href="/login" className="p-3 hover:bg-slate-300">
+        Login(todo)
+      </Link>
     </div>
   );
 }
