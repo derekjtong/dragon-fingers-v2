@@ -37,7 +37,9 @@ function AuthButton() {
               <DropdownMenuItem className="cursor-pointer justify-center">
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer justify-center">Settings</DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer justify-center">
+                <Link href="/settings">Settings</Link>
+              </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="cursor-pointer justify-center">
