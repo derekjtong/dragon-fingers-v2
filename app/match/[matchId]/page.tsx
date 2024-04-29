@@ -1,9 +1,6 @@
-"use client";
 import getMatchById from "@/app/actions/getMatchById";
 import getTextById from "@/app/actions/getTextById";
-import { Match, Text } from "@prisma/client";
-import { useEffect, useState } from "react";
-import prisma from "@/app/libs/prismadb";
+import getUserById from "@/app/actions/getUserById";
 
 type MatchPageProps = {
   params: {
@@ -11,27 +8,20 @@ type MatchPageProps = {
   };
 };
 
-function MatchPage({ params }: MatchPageProps) {
-  const [match, setMatch] = useState<Match>();
-  const [text, setText] = useState<Text>();
-  const [error, setError] = useState<String>("");
+async function MatchPage({ params }: MatchPageProps) {
+  const match = await getMatchById(params.matchId);
+  const text = await getTextById(match.textId);
+  const user = await getUserById(match.ownerId);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        console.log(params.matchId);
-      } catch (err) {
-        setError("An error occurred while fetching data");
-        console.error(err);
-      }
-    }
-    fetchData();
-  }, [params.matchId]);
+  if (!match || !text) {
+    return <div className="flex h-screen flex-col items-center justify-center text-2xl">Loading...</div>;
+  }
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center text-2xl">
-      Match {match ? match?.id : ""} {text ? text.text : ""}
-      {error ? error : ""}
+    <div className="flex h-screen flex-col items-center justify-center ">
+      <div className="text-2xl">{user?.name}&apos;s game</div>
+      <div> Match Id: {match.id}</div>
+      <div>{text.text}</div>
     </div>
   );
 }
