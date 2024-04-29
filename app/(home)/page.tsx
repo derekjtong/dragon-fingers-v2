@@ -1,9 +1,5 @@
 import Link from "next/link";
 
-export const metadata = {
-  title: "Home Page",
-};
-
 export default function HomePage() {
   return (
     <div className="flex h-screen flex-col items-center justify-center">
