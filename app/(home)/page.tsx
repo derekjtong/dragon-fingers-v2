@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <div className="flex h-screen flex-col items-center justify-center">
-      <Link href="/match/temp-match" className="p-20">
+      <Link href="/match/joinexisting" className="p-20">
         <Button size={"lg"} className="h-40 w-96 text-4xl">
           Enter Race
         </Button>
