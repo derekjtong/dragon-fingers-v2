@@ -1,6 +1,6 @@
-"use client";
-import { useSession } from "next-auth/react";
-import MatchDetails from "./MatchDetails";
+import getMatchById from "@/app/actions/getMatchById";
+import getTextById from "@/app/actions/getTextById";
+import getUserById from "@/app/actions/getUserById";
 
 type MatchPageProps = {
   params: {
@@ -8,21 +8,22 @@ type MatchPageProps = {
   };
 };
 
-function Matchpage({ params }: MatchPageProps) {
-  const session = useSession();
+async function MatchPage({ params }: MatchPageProps) {
+  const match = await getMatchById(params.matchId);
+  const text = await getTextById(match.textId);
+  const user = await getUserById(match.ownerId);
 
-  if (session.status === "loading") {
-    return <div className="flex h-screen flex-col items-center justify-center">Loading...</div>;
+  if (!match || !text) {
+    return <div className="flex h-screen flex-col items-center justify-center text-2xl">Loading...</div>;
   }
 
-  if (session.status === "unauthenticated") {
-    return <div className="flex h-screen flex-col items-center justify-center">Must be logged in</div>;
-  }
   return (
-    <div>
-      <MatchDetails matchId={params.matchId} />
+    <div className="flex h-screen flex-col items-center justify-center ">
+      <div className="text-2xl">{user?.name}&apos;s game</div>
+      <div> Match Id: {match.id}</div>
+      <div>{text.text}</div>
     </div>
   );
 }
 
-export default Matchpage;
+export default MatchPage;
