@@ -1,6 +1,8 @@
-import getMatchById from "@/app/actions/getMatchById";
-import getTextById from "@/app/actions/getTextById";
-import getUserById from "@/app/actions/getUserById";
+"use client";
+import { Match, Text } from "@prisma/client";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 type MatchPageProps = {
   params: {
@@ -8,20 +10,40 @@ type MatchPageProps = {
   };
 };
 
-async function MatchPage({ params }: MatchPageProps) {
-  const match = await getMatchById(params.matchId);
-  const text = await getTextById(match.textId);
-  const user = await getUserById(match.ownerId);
+function MatchPage({ params }: MatchPageProps) {
+  const [match, setMatch] = useState<Match>();
+  const [text, setText] = useState<Text>();
+  const [error, setError] = useState("");
+  const session = useSession();
 
-  if (!match || !text) {
-    return <div className="flex h-screen flex-col items-center justify-center text-2xl">Loading...</div>;
-  }
-
+  useEffect(() => {
+    const fetchMatch = async () => {
+      try {
+        const matchResponse = await axios.get(`/api/match/${params.matchId}`);
+        const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
+        // console.log(matchResponse.data.textId);
+        // console.log(textResponse.data.text);
+        setMatch(matchResponse.data);
+        setText(textResponse.data);
+      } catch (err: any) {
+        console.log(err);
+        setError(err);
+      }
+    };
+    fetchMatch();
+  }, [params.matchId]);
   return (
-    <div className="flex h-screen flex-col items-center justify-center ">
-      <div className="text-2xl">{user?.name}&apos;s game</div>
-      <div> Match Id: {match.id}</div>
-      <div>{text.text}</div>
+    <div className="flex h-screen justify-evenly">
+      <div className="fixed">{error}</div>
+      <div className="flex flex-col items-center justify-center border">
+        <div className="mb-10 text-2xl">{session.data?.user?.name}&apos;s game</div>
+        <div> Share this code with your friends </div>
+        <div>{match ? match.id : ""}</div>
+      </div>
+      <div className="flex flex-col items-center justify-center border">
+        <div>{text ? text.text : ""}</div>
+        <input placeholder="enter text here" className="border" />
+      </div>
     </div>
   );
 }
