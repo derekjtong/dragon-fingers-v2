@@ -12,8 +12,10 @@ import {
 import { AvatarFallback } from "@radix-ui/react-avatar";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { useState } from "react";
 
 function AuthButton() {
+  const [openDropdown, setOpenDropdown] = useState(false);
   const session = useSession();
   if (session.status === "loading") {
     return <div></div>;
@@ -21,14 +23,14 @@ function AuthButton() {
   if (session.status === "authenticated") {
     return (
       <div className="flex">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Avatar className="h-14 w-14 cursor-pointer">
+        <DropdownMenu open={openDropdown} onOpenChange={() => setOpenDropdown(false)}>
+          <DropdownMenuTrigger onMouseEnter={() => setOpenDropdown(true)}>
+            <Avatar className="h-14 w-14 cursor-pointer focus:outline-none">
               <AvatarImage src={session.data.user?.image || undefined} />
               <AvatarFallback>{session.data.user?.name}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          <DropdownMenuContent onMouseLeave={() => setOpenDropdown(false)}>
             <DropdownMenuLabel>Hello {session.data.user?.name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
