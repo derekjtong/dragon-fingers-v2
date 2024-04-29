@@ -1,16 +1,19 @@
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function HomePage() {
   return (
     <div className="flex h-screen flex-col items-center justify-center">
-      <Link href="/match/temp-match" className="mb-28 p-3 text-4xl hover:bg-slate-200">
-        Enter Race
+      <Link href="/match/temp-match" className="p-20">
+        <Button size={"lg"} className="h-40 w-96 text-4xl">
+          Enter Race
+        </Button>
       </Link>
-      <Link href="/match/join" className="p-2 text-2xl hover:bg-slate-200">
-        Join Custom
+      <Link href="/match/join" className="p-2">
+        <Button variant={"outline"}>Join Custom</Button>
       </Link>
-      <Link href="/match/create" className="p-2 text-2xl hover:bg-slate-200">
-        Create Custom
+      <Link href="/match/create" className="p-2 ">
+        <Button variant={"outline"}>Create Custom</Button>
       </Link>
     </div>
   );
