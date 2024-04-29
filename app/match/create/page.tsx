@@ -26,7 +26,7 @@ function CreatePage() {
       router.push(`/match/${match.id}`);
     } catch (error) {
       console.error("Error creating match:", error);
-      setError(`Failed to create match ${error}`);
+      setError("Failed to create match");
     }
   };
   return (
