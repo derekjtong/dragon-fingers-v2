@@ -8,9 +8,6 @@ function NavBar() {
         Dragon Fingers
       </Link>
       <AuthButton />
-      {/* <Link href="/login" className="p-3 hover:bg-slate-300">
-        Login(todo)
-      </Link> */}
     </div>
   );
 }
