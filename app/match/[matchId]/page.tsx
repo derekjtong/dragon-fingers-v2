@@ -10,6 +10,7 @@ type MatchPageProps = {
 
 async function MatchPage({ params }: MatchPageProps) {
   const match = await getMatchById(params.matchId);
+  if (!match) return <div className="flex h-screen flex-col items-center justify-center ">Error: match not found</div>;
   const text = await getTextById(match.textId);
   const user = await getUserById(match.ownerId);
 
@@ -20,7 +21,8 @@ async function MatchPage({ params }: MatchPageProps) {
   return (
     <div className="flex h-screen flex-col items-center justify-center ">
       <div className="text-2xl">{user?.name}&apos;s game</div>
-      <div> Match Id: {match.id}</div>
+      <div>Share this code with your friends: </div>
+      <div>{match.id}</div>
       <div>{text.text}</div>
     </div>
   );
