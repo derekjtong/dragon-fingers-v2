@@ -24,10 +24,9 @@ function CreatePage() {
       const response = await axios.get("/api/match/new");
       const match = response.data;
       router.push(`/match/${match.id}`);
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || "Unknown error occurred";
-      console.error("Error creating match:", errorMessage);
-      setError(errorMessage);
+    } catch (error) {
+      console.error("Error creating match:", error);
+      setError(`Failed to create match ${error}`);
     }
   };
   return (
