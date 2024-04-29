@@ -1,7 +1,9 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Match, Text } from "@prisma/client";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 type MatchPageProps = {
@@ -39,7 +41,12 @@ function MatchPage({ params }: MatchPageProps) {
   return (
     <div className="flex h-screen justify-evenly">
       {error ? (
-        <div className="flex items-center justify-center">{error}</div>
+        <div className="flex flex-col items-center justify-center">
+          <div className="p-3 text-3xl">{error}</div>
+          <Link href="/">
+            <Button variant={"destructive"}>Return to home</Button>
+          </Link>
+        </div>
       ) : (
         <>
           <div className="flex flex-col items-center justify-center border">
