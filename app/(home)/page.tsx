@@ -10,10 +10,19 @@ export default function HomePage() {
         </Button>
       </Link>
       <Link href="/match/join" className="p-2">
-        <Button variant={"outline"}>Join Custom</Button>
+        <Button variant={"outline"} className="h-12 w-48">
+          Solo
+        </Button>
+      </Link>
+      <Link href="/match/join" className="p-2">
+        <Button variant={"outline"} className="h-12 w-48">
+          Join Custom
+        </Button>
       </Link>
       <Link href="/match/create" className="p-2 ">
-        <Button variant={"outline"}>Create Custom</Button>
+        <Button variant={"outline"} className="h-12 w-48">
+          Create Custom
+        </Button>
       </Link>
     </div>
   );
