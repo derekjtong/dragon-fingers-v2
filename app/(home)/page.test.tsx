@@ -6,13 +6,13 @@ test("Home Page Loads", () => {
   render(<HomePage />);
   const enterRaceLink = screen.getByRole("link", { name: "Enter Race" });
   expect(enterRaceLink).toBeDefined();
-  expect(enterRaceLink.getAttribute("href")).toBe("/game/temp-game");
+  expect(enterRaceLink.getAttribute("href")).toBe("/match/temp-match");
 
   const joinCustomLink = screen.getByRole("link", { name: "Join Custom" });
   expect(joinCustomLink).toBeDefined();
-  expect(joinCustomLink.getAttribute("href")).toBe("/game/join");
+  expect(joinCustomLink.getAttribute("href")).toBe("/match/join");
 
   const createCustomLink = screen.getByRole("link", { name: "Create Custom" });
   expect(createCustomLink).toBeDefined();
-  expect(createCustomLink.getAttribute("href")).toBe("/game/create");
+  expect(createCustomLink.getAttribute("href")).toBe("/match/create");
 });
