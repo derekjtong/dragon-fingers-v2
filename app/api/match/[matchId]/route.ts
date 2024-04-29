@@ -17,7 +17,7 @@ export async function GET(request: Request, { params }: { params: IParams }) {
 
     // Validate matchId format
     if (!matchId || !/^[0-9a-fA-F]{24}$/.test(matchId)) {
-      return new NextResponse("Invalid code format", { status: 400 });
+      return new NextResponse("Match not found", { status: 400 });
     }
 
     // Fetch the match from the database using the provided matchId

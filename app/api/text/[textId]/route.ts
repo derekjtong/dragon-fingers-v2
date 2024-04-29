@@ -17,7 +17,7 @@ export async function GET(request: Request, { params }: { params: IParams }) {
 
     // Validate textId format
     if (!textId || !/^[0-9a-fA-F]{24}$/.test(textId)) {
-      return new NextResponse("Invalid code format", { status: 400 });
+      return new NextResponse("Text not found", { status: 400 });
     }
 
     // Fetch the text from the database using the provided textId
