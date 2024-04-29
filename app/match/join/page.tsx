@@ -8,10 +8,7 @@ function JoinPage() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // You can handle form submission here
-    console.log("Form submitted with code:", code);
-    // Add your logic for form submission, such as sending the code to a server
-    router.push(`/game/${code}`);
+    router.push(`/match/${code}`);
   };
 
   return (
