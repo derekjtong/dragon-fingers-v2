@@ -35,7 +35,7 @@ function MatchPage({ params }: MatchPageProps) {
     };
     fetchMatch();
   }, [params.matchId]);
-  if (isLoading) return <div>Loading</div>;
+  if (isLoading) return "";
   return (
     <div className="flex h-screen justify-evenly">
       {error ? (
