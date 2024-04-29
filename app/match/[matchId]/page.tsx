@@ -1,6 +1,6 @@
-import getMatchById from "@/app/actions/getMatchById";
-import getTextById from "@/app/actions/getTextById";
-import getUserById from "@/app/actions/getUserById";
+"use client";
+import { useSession } from "next-auth/react";
+import MatchDetails from "./MatchDetails";
 
 type MatchPageProps = {
   params: {
@@ -8,27 +8,21 @@ type MatchPageProps = {
   };
 };
 
-async function MatchPage({ params }: MatchPageProps) {
-  if (!params.matchId || !/^[0-9a-fA-F]{24}$/.test(params.matchId)) {
-    return <div className="flex h-screen flex-col items-center justify-center ">Error: match not found</div>;
-  }
-  const match = await getMatchById(params.matchId);
-  if (!match) return <div className="flex h-screen flex-col items-center justify-center ">Error: match not found</div>;
-  const text = await getTextById(match.textId);
-  const user = await getUserById(match.ownerId);
+function Matchpage({ params }: MatchPageProps) {
+  const session = useSession();
 
-  if (!match || !text) {
-    return <div className="flex h-screen flex-col items-center justify-center text-2xl">Loading...</div>;
+  if (session.status === "loading") {
+    return <div className="flex h-screen flex-col items-center justify-center">Loading...</div>;
   }
 
+  if (session.status === "unauthenticated") {
+    return <div className="flex h-screen flex-col items-center justify-center">Must be logged in</div>;
+  }
   return (
-    <div className="flex h-screen flex-col items-center justify-center ">
-      <div className="text-2xl">{user?.name}&apos;s game</div>
-      <div>Share this code with your friends: </div>
-      <div>{match.id}</div>
-      <div>{text.text}</div>
+    <div>
+      <MatchDetails matchId={params.matchId} />
     </div>
   );
 }
 
-export default MatchPage;
+export default Matchpage;

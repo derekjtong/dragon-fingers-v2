@@ -30,7 +30,7 @@ function CreatePage() {
     }
   };
   return (
-    <div className="flex h-screen flex-col items-center justify-center ">
+    <div className="flex h-screen flex-col items-center justify-center">
       <div className="mb-2 p-3 text-2xl">Match Settings</div>
       <div>Option 1</div>
       <div>Option 2</div>

@@ -1,15 +1,25 @@
 "use client";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 function JoinPage() {
   const [code, setCode] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const session = useSession();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (session.status === "loading") {
+      console.log("Session is loading");
+      return;
+    }
+    if (session.status === "unauthenticated") {
+      setError("Must be logged in");
+      return;
+    }
     if (code == "") {
       setError("Ask your friend for their room code!");
       return;
