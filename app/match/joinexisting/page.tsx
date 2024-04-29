@@ -1,6 +1,8 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PuffLoader } from "react-spinners";
@@ -33,6 +35,17 @@ function JoinExistingPage() {
     };
     fetchGame();
   });
+
+  if (error)
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <div className="p-3 text-3xl">{error}</div>
+        <Link href="/">
+          <Button variant={"destructive"}>Return to home</Button>
+        </Link>
+      </div>
+    );
+
   return (
     <div className="flex h-screen flex-col items-center justify-center">
       <PuffLoader />
