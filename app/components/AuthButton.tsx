@@ -3,12 +3,15 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 function AuthButton() {
-  const { data: session } = useSession();
-  if (session) {
+  const session = useSession();
+  if (session.status === "loading") {
+    return <div></div>;
+  }
+  if (session.status === "authenticated") {
     return (
       <div className="flex">
         <Link className="cursor-pointer p-3 hover:bg-gray-300" href="/profile">
-          {session?.user?.name}{" "}
+          {session.data.user?.name}
         </Link>
         <div className="cursor-pointer p-3 hover:bg-gray-300" onClick={() => signOut()}>
           Sign out
