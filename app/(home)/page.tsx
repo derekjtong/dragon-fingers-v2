@@ -9,7 +9,7 @@ export default function HomePage() {
           Enter Race
         </Button>
       </Link>
-      <Link href="/match/join" className="p-2">
+      <Link href="/match/solo" className="p-2">
         <Button variant={"outline"} className="h-12 w-48">
           Solo
         </Button>
