@@ -27,8 +27,6 @@ export async function GET(request: Request, { params }: { params: IParams }) {
       },
     });
 
-    console.log(match);
-
     // Check if the match was found
     if (match) {
       // If found, return the match data in JSON format
