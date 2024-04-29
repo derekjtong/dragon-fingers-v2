@@ -1,5 +1,6 @@
 import NavBar from "./components/Navbar";
 import AuthContext from "./context/AuthContext";
+
 import "./globals.css";
 
 export const metadata = {

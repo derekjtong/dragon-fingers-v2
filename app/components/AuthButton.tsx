@@ -1,4 +1,6 @@
 "use client";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { AvatarFallback } from "@radix-ui/react-avatar";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
@@ -11,7 +13,10 @@ function AuthButton() {
     return (
       <div className="flex">
         <Link className="cursor-pointer p-3 hover:bg-gray-300" href="/profile">
-          {session.data.user?.name}
+          <Avatar>
+            <AvatarImage src={session.data.user?.image || undefined} />
+            <AvatarFallback>{session.data.user?.name}</AvatarFallback>
+          </Avatar>
         </Link>
         <div className="cursor-pointer p-3 hover:bg-gray-300" onClick={() => signOut()}>
           Sign out
