@@ -1,4 +1,5 @@
 "use client";
+import TypeBox from "@/app/components/TypeBox";
 import { Button } from "@/components/ui/button";
 import { Match, Text } from "@prisma/client";
 import axios from "axios";
@@ -57,16 +58,18 @@ function MatchPage({ params }: MatchPageProps) {
     );
 
   return (
-    <div className="flex h-screen justify-evenly">
-      <div className="flex flex-col items-center justify-center border">
-        <div className="mb-10 text-2xl">{session.data?.user?.name}&apos;s game</div>
-        <div> Share this code with your friends </div>
-        <div>{match ? match.id : ""}</div>
-        <Button>Start Game</Button>
+    <div>
+      <div className="h-screeen fixed ml-48 mt-56 flex w-full flex-col items-start ">
+        <div className="flex flex-col items-center">
+          <div className="text-2xl">{session.data?.user?.name}&apos;s game</div>
+          <div> Share this code with your friends </div>
+          <div>{match ? match.id : ""}</div>
+          <Button>Start Game</Button>
+          <div className="text-2xl">Participants</div>
+        </div>
       </div>
-      <div className="flex flex-col items-center justify-center border">
-        <div>{text ? text.text : ""}</div>
-        <input placeholder="enter text here" className="border" />
+      <div className="flex h-screen flex-grow flex-col items-center justify-center ">
+        <TypeBox />
       </div>
     </div>
   );
