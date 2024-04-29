@@ -9,6 +9,9 @@ type MatchPageProps = {
 };
 
 async function MatchPage({ params }: MatchPageProps) {
+  if (!params.matchId || !/^[0-9a-fA-F]{24}$/.test(params.matchId)) {
+    return <div className="flex h-screen flex-col items-center justify-center ">Error: match not found</div>;
+  }
   const match = await getMatchById(params.matchId);
   if (!match) return <div className="flex h-screen flex-col items-center justify-center ">Error: match not found</div>;
   const text = await getTextById(match.textId);
