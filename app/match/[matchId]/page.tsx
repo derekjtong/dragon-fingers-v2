@@ -14,6 +14,7 @@ function MatchPage({ params }: MatchPageProps) {
   const [match, setMatch] = useState<Match>();
   const [text, setText] = useState<Text>();
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
   const session = useSession();
 
   useEffect(() => {
@@ -25,25 +26,33 @@ function MatchPage({ params }: MatchPageProps) {
         // console.log(textResponse.data.text);
         setMatch(matchResponse.data);
         setText(textResponse.data);
+        setIsLoading(false);
       } catch (err: any) {
-        console.log(err);
-        setError(err);
+        console.log(err.response.data);
+        setError("Error: " + err.response.data);
+        setIsLoading(false);
       }
     };
     fetchMatch();
   }, [params.matchId]);
+  if (isLoading) return <div>Loading</div>;
   return (
     <div className="flex h-screen justify-evenly">
-      <div className="fixed">{error}</div>
-      <div className="flex flex-col items-center justify-center border">
-        <div className="mb-10 text-2xl">{session.data?.user?.name}&apos;s game</div>
-        <div> Share this code with your friends </div>
-        <div>{match ? match.id : ""}</div>
-      </div>
-      <div className="flex flex-col items-center justify-center border">
-        <div>{text ? text.text : ""}</div>
-        <input placeholder="enter text here" className="border" />
-      </div>
+      {error ? (
+        <div className="flex items-center justify-center">{error}</div>
+      ) : (
+        <>
+          <div className="flex flex-col items-center justify-center border">
+            <div className="mb-10 text-2xl">{session.data?.user?.name}&apos;s game</div>
+            <div> Share this code with your friends </div>
+            <div>{match ? match.id : ""}</div>
+          </div>
+          <div className="flex flex-col items-center justify-center border">
+            <div>{text ? text.text : ""}</div>
+            <input placeholder="enter text here" className="border" />
+          </div>
+        </>
+      )}
     </div>
   );
 }
