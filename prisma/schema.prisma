@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,33 +11,101 @@ datasource db {
 }
 
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String?
-  email String? @unique
-  emailVerified DateTime?
-  image String?
+  id             String    @id @default(auto()) @map("_id") @db.ObjectId
+  name           String?
+  email          String?   @unique
+  emailVerified  DateTime?
+  image          String?
   hashedPassword String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  accounts Account[]
+  averageWpm Float? @default(0)
+  wpmCount   Int    @default(0)
+
+  accounts  Account[]
+  matches   UserMatch[]
+  topScores TopScore[]
+  Match     Match[]
 }
 
 model Account {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  userId String @db.ObjectId
-  type String
-  provider String
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
   providerAccountId String
-  refresh_token String? @db.String
-  access_token String? @db.String
-  expires_at Int?
-  token_type String?
-  scope String?
-  id_token String? @db.String
-  session_state String?
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
+}
+
+model Text {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  text       String
+  source     String
+  difficulty Int
+  length     Int
+
+  matches      Match[]       @relation("TextMatches")
+  leaderboards Leaderboard[]
+}
+
+model Match {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  ownerId   String    @db.ObjectId
+  owner     User      @relation(fields: [ownerId], references: [id])
+  textId    String    @db.ObjectId
+  text      Text      @relation("TextMatches", fields: [textId], references: [id])
+  createdAt DateTime  @default(now())
+  startTime DateTime?
+  endTime   DateTime?
+
+  users        UserMatch[]
+  participants Participant[]
+}
+
+model UserMatch {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  userId  String @db.ObjectId
+  matchId String @db.ObjectId
+  user    User   @relation(fields: [userId], references: [id])
+  match   Match  @relation(fields: [matchId], references: [id])
+}
+
+model Participant {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  matchId    String   @db.ObjectId
+  match      Match    @relation(fields: [matchId], references: [id])
+  wpm        Int
+  accuracy   Float
+  finishTime DateTime
+}
+
+model Leaderboard {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  textId    String   @db.ObjectId
+  text      Text     @relation(fields: [textId], references: [id])
+  updatedAt DateTime @updatedAt
+
+  topScores TopScore[]
+}
+
+model TopScore {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String      @db.ObjectId
+  user          User        @relation(fields: [userId], references: [id])
+  leaderboardId String      @db.ObjectId
+  leaderboard   Leaderboard @relation(fields: [leaderboardId], references: [id])
+  wpm           Int
+  accuracy      Float
 }
