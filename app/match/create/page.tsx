@@ -32,9 +32,9 @@ function CreatePage() {
   return (
     <div className="flex h-screen flex-col items-center justify-center">
       <div className="mb-2 p-3 text-2xl">Match Settings</div>
-      <div>Option 1</div>
-      <div>Option 2</div>
-      <div>Option 3</div>
+      <div>Difficulty</div>
+      <div>Length</div>
+      <div>Source</div>
       <button className="mt-10 p-3 text-2xl hover:bg-gray-300" onClick={handleClick}>
         Create Match
       </button>
