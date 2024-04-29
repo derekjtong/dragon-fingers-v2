@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     });
     return NextResponse.json(newMatch);
   } catch (error: any) {
-    return new NextResponse(JSON.stringify({ error: error.message }), {
+    return new NextResponse("Internal Error", {
       status: 500,
     });
   }
