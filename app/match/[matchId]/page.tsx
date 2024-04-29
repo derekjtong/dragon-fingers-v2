@@ -5,6 +5,7 @@ import axios from "axios";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { PuffLoader } from "react-spinners";
 
 type MatchPageProps = {
   params: {
@@ -37,29 +38,36 @@ function MatchPage({ params }: MatchPageProps) {
     };
     fetchMatch();
   }, [params.matchId]);
-  if (isLoading) return "";
+
+  if (isLoading)
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <PuffLoader />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <div className="p-3 text-3xl">{error}</div>
+        <Link href="/">
+          <Button variant={"destructive"}>Return to home</Button>
+        </Link>
+      </div>
+    );
+
   return (
     <div className="flex h-screen justify-evenly">
-      {error ? (
-        <div className="flex flex-col items-center justify-center">
-          <div className="p-3 text-3xl">{error}</div>
-          <Link href="/">
-            <Button variant={"destructive"}>Return to home</Button>
-          </Link>
-        </div>
-      ) : (
-        <>
-          <div className="flex flex-col items-center justify-center border">
-            <div className="mb-10 text-2xl">{session.data?.user?.name}&apos;s game</div>
-            <div> Share this code with your friends </div>
-            <div>{match ? match.id : ""}</div>
-          </div>
-          <div className="flex flex-col items-center justify-center border">
-            <div>{text ? text.text : ""}</div>
-            <input placeholder="enter text here" className="border" />
-          </div>
-        </>
-      )}
+      <div className="flex flex-col items-center justify-center border">
+        <div className="mb-10 text-2xl">{session.data?.user?.name}&apos;s game</div>
+        <div> Share this code with your friends </div>
+        <div>{match ? match.id : ""}</div>
+        <Button>Start Game</Button>
+      </div>
+      <div className="flex flex-col items-center justify-center border">
+        <div>{text ? text.text : ""}</div>
+        <input placeholder="enter text here" className="border" />
+      </div>
     </div>
   );
 }
