@@ -121,7 +121,7 @@ const TypeBox = () => {
           <div className="min-h-10"></div>
         )}
         {typedText.length !== placeholderText.length ? (
-          <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-white ${!isTyping ? "animate-blink" : ""}`} />
+          <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
         ) : (
           ""
         )}
