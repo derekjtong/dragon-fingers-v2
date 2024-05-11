@@ -22,8 +22,18 @@ export async function GET(request: Request) {
       data: {
         ownerId: currentUser.id,
         textId: randomText.id,
+        participants: {
+          create: [
+            {
+              userId: currentUser.id,
+              speed: 0,
+              accuracy: 0,
+            },
+          ],
+        },
       },
     });
+
     return NextResponse.json(newMatch);
   } catch (error: any) {
     return new NextResponse("Internal Error", {

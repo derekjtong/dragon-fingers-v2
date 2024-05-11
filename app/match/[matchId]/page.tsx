@@ -1,5 +1,5 @@
 "use client";
-import TypeBox from "@/app/components/TypeBox";
+import TypeBox from "@/app/match/[matchId]/TypeBox";
 import { Button } from "@/components/ui/button";
 import { Match, Text } from "@prisma/client";
 import axios from "axios";
@@ -19,6 +19,7 @@ function MatchPage({ params }: MatchPageProps) {
   const [text, setText] = useState<Text>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [participants, setParticipants] = useState<ExtendedParticipant[]>();
   const session = useSession();
 
   useEffect(() => {
@@ -26,10 +27,10 @@ function MatchPage({ params }: MatchPageProps) {
       try {
         const matchResponse = await axios.get(`/api/match/${params.matchId}`);
         const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
-        // console.log(matchResponse.data.textId);
-        // console.log(textResponse.data.text);
+        const participantsResponse = await axios.get(`/api/match/${params.matchId}/participants`);
         setMatch(matchResponse.data);
         setText(textResponse.data);
+        setParticipants(participantsResponse.data);
         setIsLoading(false);
       } catch (err: any) {
         console.log(err.response.data);
@@ -66,6 +67,7 @@ function MatchPage({ params }: MatchPageProps) {
           <div>{match ? match.id : ""}</div>
           <Button>Start Game</Button>
           <div className="text-2xl">Participants</div>
+          <div>{participants?.map((participant, index) => <div key={index}>{participant.user?.name}</div>)}</div>
         </div>
       </div>
       <div className="flex h-screen flex-grow flex-col items-center justify-center ">
