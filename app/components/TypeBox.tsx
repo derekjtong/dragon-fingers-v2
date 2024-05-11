@@ -8,13 +8,19 @@ interface TypeBoxProps {
   matchId: string;
 }
 
+interface ParticipantProgress {
+  name: string;
+  userId: string;
+  wordCount: number;
+}
+
 const TypeBox = ({ matchId }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [placeholderText, setPlaceholderText] = useState<string>("the quick brown fox jumps over the lazy dog");
   const [typedText, setTypedText] = useState<string>("");
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isTyping, setIsTyping] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [participantProgress, setParticipantProgress] = useState<ParticipantProgress[]>([]);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const [time, setTime] = useState<number>(0);
@@ -24,12 +30,20 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
   useEffect(() => {
     pusherClient.subscribe(matchId);
 
-    const progressHandler = (message: ProgressUpdateType) => {
-      setProgress(message.wordCount);
+    const progressHandler = (update: ProgressUpdateType) => {
+      setParticipantProgress((prevProgress) => {
+        const existingIndex = prevProgress.findIndex((p) => p.userId === update.userId);
+        if (existingIndex !== -1) {
+          const newProgress = [...prevProgress];
+          newProgress[existingIndex] = update;
+          return newProgress;
+        } else {
+          return [...prevProgress, update];
+        }
+      });
     };
 
     pusherClient.bind("progress-update", progressHandler);
-
     return () => {
       pusherClient.unsubscribe(matchId);
       pusherClient.unbind("progress-update", progressHandler);
@@ -168,7 +182,14 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
           aria-label="Type the text here"
           disabled={typedText.length === placeholderText.length}
         />
-        <div>Progress (from channel): {progress}</div>
+        <div>
+          Progress (from channel):{" "}
+          {participantProgress.map((user) => (
+            <div key={user.userId}>
+              User {user.name}: {user.wordCount} words
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
