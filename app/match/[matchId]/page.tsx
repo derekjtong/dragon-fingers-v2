@@ -1,7 +1,7 @@
 "use client";
 import TypeBox from "@/app/components/TypeBox";
 import { Button } from "@/components/ui/button";
-import { Match, Text } from "@prisma/client";
+import { Match } from "@prisma/client";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -16,10 +16,10 @@ type MatchPageProps = {
 
 function MatchPage({ params }: MatchPageProps) {
   const [match, setMatch] = useState<Match>();
-  const [text, setText] = useState<Text>();
+  const [text, setText] = useState("");
+  const [user, setUser] = useState<UserData>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [participants, setParticipants] = useState<ExtendedParticipant[]>();
   const session = useSession();
 
   useEffect(() => {
@@ -27,10 +27,10 @@ function MatchPage({ params }: MatchPageProps) {
       try {
         const matchResponse = await axios.get(`/api/match/${params.matchId}`);
         const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
-        const participantsResponse = await axios.get(`/api/match/${params.matchId}/participants`);
+        const userResponse = await axios.get("/api/user");
+        setUser(userResponse.data);
         setMatch(matchResponse.data);
-        setText(textResponse.data);
-        setParticipants(participantsResponse.data);
+        setText(textResponse.data.text);
         setIsLoading(false);
       } catch (err: any) {
         console.log(err.response.data);
@@ -60,18 +60,16 @@ function MatchPage({ params }: MatchPageProps) {
 
   return (
     <div>
-      <div className="h-screeen fixed ml-48 mt-56 flex w-full flex-col items-start ">
+      <div className="h-screeen fixed ml-48 mt-64 flex w-full flex-col items-start ">
         <div className="flex flex-col items-center">
           <div className="text-2xl">{session.data?.user?.name}&apos;s game</div>
           <div> Share this code with your friends </div>
           <div>{match ? match.id : ""}</div>
-          <Button>Start Game</Button>
-          <div className="text-2xl">Participants</div>
-          <div>{participants?.map((participant, index) => <div key={index}>{participant.user?.name}</div>)}</div>
+          {user?.id === match?.ownerId ? <Button>Start Game</Button> : ""}
         </div>
       </div>
       <div className="flex h-screen flex-grow flex-col items-center justify-center ">
-        <TypeBox matchId={params.matchId} />
+        <TypeBox matchId={params.matchId} text={text} />
       </div>
     </div>
   );
