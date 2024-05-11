@@ -71,7 +71,7 @@ model Match {
   id           String    @id @default(auto()) @map("_id") @db.ObjectId
   ownerId      String    @db.ObjectId
   textId       String    @db.ObjectId
-  open         Boolean   @default(false)
+  open         Boolean   @default(true)
   createdAt    DateTime  @default(now())
   startTime    DateTime?
   endTime      DateTime?
