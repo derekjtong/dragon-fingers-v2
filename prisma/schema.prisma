@@ -88,8 +88,8 @@ model Participant {
   id       String @id @default(auto()) @map("_id") @db.ObjectId
   matchId  String @db.ObjectId
   userId   String @db.ObjectId
-  speed    Float
-  accuracy Float
+  speed    Float?
+  accuracy Float?
 
   match Match @relation(fields: [matchId], references: [id])
   user  User  @relation(fields: [userId], references: [id])
