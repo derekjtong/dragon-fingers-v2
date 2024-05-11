@@ -10,16 +10,15 @@ interface IParams {
 export async function GET(request: Request, { params }: { params: IParams }) {
   try {
     const { matchId } = params;
+    const currentUser = await getCurrentUser();
 
-    // Validate that matchId is provided
-    if (!matchId) {
-      // If no matchId is provided, return a 400 Bad Request response
-      return new NextResponse("Bad Request: matchId is required", { status: 400 });
+    if (!currentUser?.id || !currentUser?.email) {
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     // Validate matchId format
     if (!matchId || !/^[0-9a-fA-F]{24}$/.test(matchId)) {
-      return new NextResponse("Match not found", { status: 400 });
+      return new NextResponse("Match not found", { status: 404 });
     }
 
     // Fetch the match from the database using the provided matchId
@@ -31,12 +30,19 @@ export async function GET(request: Request, { params }: { params: IParams }) {
 
     // Check if the match was found
     if (match) {
-      // If found, return the match data in JSON format
+      // Send a 0 progress to alert join
+      await pusherServer.trigger(matchId, "progress-update", {
+        name: currentUser.name,
+        userId: currentUser.id,
+        wordCount: 0,
+      });
+
+      // Return the match data in JSON format
       return new NextResponse(JSON.stringify(match), {
         headers: {
           "Content-Type": "application/json",
         },
-        status: 200, // OK status
+        status: 200,
       });
     } else {
       // If no match is found, return a 404 Not Found response
@@ -49,24 +55,27 @@ export async function GET(request: Request, { params }: { params: IParams }) {
   }
 }
 
+// Update word count
 export async function POST(request: Request, { params }: { params: IParams }) {
   try {
     const { matchId } = params;
     const currentUser = await getCurrentUser();
     const body = await request.json();
     const { wordCount } = body;
-    console.log(body);
+
     if (!currentUser?.id || !currentUser?.email) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+
     await pusherServer.trigger(matchId, "progress-update", {
       name: currentUser.name,
       userId: currentUser.id,
       wordCount,
     });
-    return new NextResponse("Success");
+
+    return new NextResponse("Success", { status: 200 });
   } catch (error: any) {
-    console.log(error);
+    console.log("Error updating match:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
