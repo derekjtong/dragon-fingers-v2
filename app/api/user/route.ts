@@ -25,6 +25,10 @@ export async function GET(request: Request) {
       matchesPlayed: userStats?.matchesPlayed,
       matchesWon: userStats?.matchesWon,
     };
+
     return new NextResponse(JSON.stringify(userData), { status: 200 });
-  } catch (error: any) {}
+  } catch (error: any) {
+    console.log("Error getting user data:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
 }
