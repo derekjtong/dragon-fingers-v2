@@ -1,6 +1,5 @@
 "use client";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { pusherClient } from "../libs/pusher";
 import Stopwatch from "./Stopwatch";
@@ -20,16 +19,17 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const [time, setTime] = useState<number>(0);
   const [timerOn, setTimerOn] = useState<boolean>(false);
-  const session = useSession();
 
+  // Progress socket
   useEffect(() => {
     pusherClient.subscribe(matchId);
 
     const progressHandler = (message: ProgressUpdateType) => {
       setProgress(message.wordCount);
     };
+
     pusherClient.bind("progress-update", progressHandler);
-    ``;
+
     return () => {
       pusherClient.unsubscribe(matchId);
       pusherClient.unbind("progress-update", progressHandler);
