@@ -50,10 +50,10 @@ model Account {
 model Stats {
   id            String @id @default(auto()) @map("_id") @db.ObjectId
   userId        String @unique @db.ObjectId
-  averageSpeed  Float
-  bestSpeed     Float
-  matchesPlayed Int
-  matchesWon    Int
+  averageSpeed  Float?
+  bestSpeed     Float?
+  matchesPlayed Int    @default(0)
+  matchesWon    Int    @default(0)
 
   user User @relation(fields: [userId], references: [id])
 }
