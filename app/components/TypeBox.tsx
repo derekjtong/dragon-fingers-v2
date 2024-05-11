@@ -6,6 +6,7 @@ import Stopwatch from "./Stopwatch";
 
 interface TypeBoxProps {
   matchId: string;
+  text: string;
 }
 
 interface ParticipantProgress {
@@ -14,9 +15,9 @@ interface ParticipantProgress {
   wordCount: number;
 }
 
-const TypeBox = ({ matchId }: TypeBoxProps) => {
+const TypeBox = ({ matchId, text }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [placeholderText, setPlaceholderText] = useState<string>("the quick brown fox jumps over the lazy dog");
+  // const [text, setPlaceholderText] = useState<string>("the quick brown fox jumps over the lazy dog");
   const [typedText, setTypedText] = useState<string>("");
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isTyping, setIsTyping] = useState(false);
@@ -25,20 +26,40 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const [time, setTime] = useState<number>(0);
   const [timerOn, setTimerOn] = useState<boolean>(false);
+  const [countDown, setCountDown] = useState(0);
+
+  // Fetch participants
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      try {
+        const response = await axios.get(`/api/match/${matchId}/participants`);
+        const initialParticipants = response.data.map((participant: ExtendedParticipant) => ({
+          name: participant.user.name,
+          userId: participant.userId,
+          wordCount: 0,
+        }));
+        setParticipantProgress(initialParticipants);
+      } catch (error) {
+        console.error("Error fetching participants:", error);
+      }
+    };
+
+    fetchParticipants();
+  }, [matchId]);
 
   // Progress socket
   useEffect(() => {
     pusherClient.subscribe(matchId);
 
-    const progressHandler = (update: ProgressUpdateType) => {
-      setParticipantProgress((prevProgress) => {
-        const existingIndex = prevProgress.findIndex((p) => p.userId === update.userId);
-        if (existingIndex !== -1) {
-          const newProgress = [...prevProgress];
-          newProgress[existingIndex] = update;
-          return newProgress;
+    const progressHandler = (update: MatchUpdateMessage) => {
+      setParticipantProgress((prev) => {
+        const index = prev.findIndex((p) => p.userId === update.userId);
+        if (index !== -1) {
+          const updatedParticipants = [...prev];
+          updatedParticipants[index] = { ...updatedParticipants[index], wordCount: update.wordCount };
+          return updatedParticipants;
         } else {
-          return [...prevProgress, update];
+          return [...prev, update];
         }
       });
     };
@@ -125,23 +146,14 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
       setTimerOn(true);
     }
 
-    if (currentText.length === placeholderText.length) {
+    if (currentText.length === text.length) {
       setTimerOn(false);
     }
 
-    if (typedText.length % 5 == 0) {
-      axios
-        .post(`/api/match/${matchId}`, { wordCount: typedText.length })
-        .then((response) => {
-          console.log("Progress updated successfully:", response.data);
-        })
-        .catch((error) => {
-          console.error("Failed to update progress:", error);
-        });
-    }
+    axios.post(`/api/match/${matchId}`, { wordCount: typedText.length });
   };
   const getHighlightedText = () => {
-    return placeholderText.split("").map((char, index) => {
+    return text.split("").map((char, index) => {
       let colorClass;
       if (index < typedText.length) {
         colorClass = char === typedText[index] ? "text-black" : "text-red-500";
@@ -159,14 +171,14 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
   return (
     <div className="flex h-screen w-full items-center justify-center" onClick={handleHomeClick}>
       <div className="relative">
-        {timerOn || typedText.length === placeholderText.length ? (
+        {timerOn || typedText.length === text.length ? (
           <div className="min-h-10">
             <Stopwatch time={time} setTime={setTime} timerOn={timerOn} setTimerOn={setTimerOn} />
           </div>
         ) : (
           <div className="min-h-10"></div>
         )}
-        {typedText.length !== placeholderText.length ? (
+        {typedText.length !== text.length ? (
           <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
         ) : (
           ""
@@ -180,7 +192,7 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
           onKeyUp={handleKeyUp as any}
           value={typedText}
           aria-label="Type the text here"
-          disabled={typedText.length === placeholderText.length}
+          disabled={typedText.length === text.length}
         />
         <div>
           Progress (from channel):{" "}
