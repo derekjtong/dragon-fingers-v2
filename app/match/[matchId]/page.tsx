@@ -71,7 +71,7 @@ function MatchPage({ params }: MatchPageProps) {
         </div>
       </div>
       <div className="flex h-screen flex-grow flex-col items-center justify-center ">
-        <TypeBox />
+        <TypeBox matchId={params.matchId} />
       </div>
     </div>
   );

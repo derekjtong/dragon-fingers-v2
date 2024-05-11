@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
+import getCurrentUser from "@/app/actions/getCurrentUser";
+import { pusherServer } from "@/app/libs/pusher";
 
 interface IParams {
-  matchId?: string;
+  matchId: string;
 }
 
 export async function GET(request: Request, { params }: { params: IParams }) {
@@ -43,6 +45,27 @@ export async function GET(request: Request, { params }: { params: IParams }) {
   } catch (err) {
     // Log the error and return a 500 Internal Server Error response
     console.error("Error fetching match:", err);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
+
+export async function POST(request: Request, { params }: { params: IParams }) {
+  try {
+    const { matchId } = params;
+    const currentUser = await getCurrentUser();
+    const body = await request.json();
+    const { wordCount } = body;
+    console.log(body);
+    if (!currentUser?.id || !currentUser?.email) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+    await pusherServer.trigger(matchId, "progress-update", {
+      userId: currentUser.id,
+      wordCount,
+    });
+    return new NextResponse("Success");
+  } catch (error: any) {
+    console.log(error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

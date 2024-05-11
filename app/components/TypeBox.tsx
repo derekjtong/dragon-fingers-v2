@@ -1,18 +1,40 @@
 "use client";
-import { useState, useEffect, useRef, FC, RefObject } from "react";
+import axios from "axios";
+import { useSession } from "next-auth/react";
+import { useEffect, useRef, useState } from "react";
+import { pusherClient } from "../libs/pusher";
 import Stopwatch from "./Stopwatch";
 
-const TypeBox = () => {
+interface TypeBoxProps {
+  matchId: string;
+}
+
+const TypeBox = ({ matchId }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [placeholderText, setPlaceholderText] = useState<string>("the quick brown fox jumps over the lazy dog");
   const [typedText, setTypedText] = useState<string>("");
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [progress, setProgress] = useState(0);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
-
   const [time, setTime] = useState<number>(0);
   const [timerOn, setTimerOn] = useState<boolean>(false);
+  const session = useSession();
+
+  useEffect(() => {
+    pusherClient.subscribe(matchId);
+
+    const progressHandler = (message: ProgressUpdateType) => {
+      setProgress(message.wordCount);
+    };
+    pusherClient.bind("progress-update", progressHandler);
+    ``;
+    return () => {
+      pusherClient.unsubscribe(matchId);
+      pusherClient.unbind("progress-update", progressHandler);
+    };
+  }, [matchId]);
 
   // Focus on the input when the component mounts
   useEffect(() => {
@@ -92,8 +114,18 @@ const TypeBox = () => {
     if (currentText.length === placeholderText.length) {
       setTimerOn(false);
     }
-  };
 
+    if (typedText.length % 5 == 0) {
+      axios
+        .post(`/api/match/${matchId}`, { wordCount: typedText.length })
+        .then((response) => {
+          console.log("Progress updated successfully:", response.data);
+        })
+        .catch((error) => {
+          console.error("Failed to update progress:", error);
+        });
+    }
+  };
   const getHighlightedText = () => {
     return placeholderText.split("").map((char, index) => {
       let colorClass;
@@ -136,6 +168,7 @@ const TypeBox = () => {
           aria-label="Type the text here"
           disabled={typedText.length === placeholderText.length}
         />
+        <div>Progress (from channel): {progress}</div>
       </div>
     </div>
   );
