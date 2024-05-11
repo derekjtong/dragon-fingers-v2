@@ -14,7 +14,7 @@ type ExtendedParticipant = {
 
 // Progress message used in pusher channels
 type ProgressUpdateType = {
-  id: string;
+  name: string;
   userId: string;
   wordCount: number;
 };

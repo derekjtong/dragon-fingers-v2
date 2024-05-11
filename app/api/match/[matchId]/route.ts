@@ -60,6 +60,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
     await pusherServer.trigger(matchId, "progress-update", {
+      name: currentUser.name,
       userId: currentUser.id,
       wordCount,
     });
