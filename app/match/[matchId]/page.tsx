@@ -1,5 +1,5 @@
 "use client";
-import TypeBox from "@/app/match/[matchId]/TypeBox";
+import TypeBox from "@/app/components/TypeBox";
 import { Button } from "@/components/ui/button";
 import { Match, Text } from "@prisma/client";
 import axios from "axios";
