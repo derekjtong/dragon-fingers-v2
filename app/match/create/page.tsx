@@ -19,7 +19,6 @@ function CreatePage() {
       return;
     }
 
-    console.log(session);
     try {
       const response = await axios.get("/api/match/new");
       const match = response.data;

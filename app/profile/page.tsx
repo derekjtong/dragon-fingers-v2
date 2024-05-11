@@ -11,7 +11,6 @@ function ProfilePage() {
   useEffect(() => {
     const fetchUserData = async () => {
       const response = await axios.get("/api/user");
-      console.log("Profile:", response.data);
       setUserData(response.data);
     };
     fetchUserData();
