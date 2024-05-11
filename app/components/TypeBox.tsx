@@ -143,7 +143,7 @@ const TypeBox = ({ matchId }: TypeBoxProps) => {
   };
 
   return (
-    <div className="flex w-full items-center justify-center" onClick={handleHomeClick}>
+    <div className="flex h-screen w-full items-center justify-center" onClick={handleHomeClick}>
       <div className="relative">
         {timerOn || typedText.length === placeholderText.length ? (
           <div className="min-h-10">
