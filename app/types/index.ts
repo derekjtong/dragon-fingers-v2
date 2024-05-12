@@ -14,6 +14,8 @@ type ExtendedParticipant = {
   };
 };
 
+type GameStatus = "open" | "progress" | "closed";
+
 // Progress message used in pusher channels
 // api/match/[matchId]
 // api/match/[matchId]/participants
@@ -21,7 +23,7 @@ type MatchUpdateMessage = {
   name: string;
   userId: string;
   charCount: number;
-  status: "open" | "progress" | "closed" | "";
+  status: GameStatus;
 };
 
 // User Data

@@ -89,7 +89,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
     }
 
     // Check if match is already closed
-    if (!match.open) {
+    if (!match.allowJoin) {
       return new NextResponse("Match is already closed", { status: 409 });
     }
 
@@ -108,7 +108,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       },
       data: {
         endTime,
-        open: false,
+        allowJoin: false,
       },
     });
 

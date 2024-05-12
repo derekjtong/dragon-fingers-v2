@@ -17,7 +17,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const { participantProgress, status } = usePusherProgress(match.id);
+  const { participantProgress, status } = usePusherProgress(match);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -115,7 +115,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
         ) : (
           <div className="min-h-10"></div>
         )}
-        {typedText.length === text.length || status === "closed" || !match.open ? (
+        {typedText.length === text.length || status === "closed" || match.allowJoin === false ? (
           ""
         ) : (
           <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
@@ -129,10 +129,11 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
           onKeyUp={handleKeyUp as any}
           value={typedText}
           aria-label="Type the text here"
-          disabled={typedText.length === text.length || status === "closed" || !match.open}
+          disabled={typedText.length === text.length || status === "closed" || match.allowJoin === false}
         />
         <div>
-          <div>Status: {match.open && status == "open" ? "Open" : "Closed"}</div>
+          <div>DB Status: {match.allowJoin ? "Open" : "Closed"}</div>
+          <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
           Progress (from channel):{" "}
           {participantProgress.map((user) => (

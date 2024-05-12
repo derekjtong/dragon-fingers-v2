@@ -1,18 +1,17 @@
+import { Match } from "@prisma/client";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { pusherClient } from "../libs/pusher";
 
-type GameStatus = "open" | "progress" | "closed" | "";
-
-function usePusherProgress(matchId: string) {
+function usePusherProgress(match: Match) {
   const [participantProgress, setParticipantProgress] = useState<MatchUpdateMessage[]>([]);
-  const [status, setStatus] = useState<GameStatus>("");
+  const [status, setStatus] = useState<GameStatus>(match.allowJoin ? "open" : !match.endTime ? "progress" : "closed");
 
   // Fetch initial participants
   useEffect(() => {
     const fetchParticipants = async () => {
       try {
-        const response = await axios.get(`/api/match/${matchId}/participants`);
+        const response = await axios.get(`/api/match/${match.id}/participants`);
         const initialParticipants = response.data.map((participant: ExtendedParticipant) => ({
           name: participant.user.name,
           userId: participant.userId,
@@ -26,12 +25,12 @@ function usePusherProgress(matchId: string) {
     };
 
     fetchParticipants();
-  }, [matchId]);
+  }, [match.id]);
 
   // Connect to Pusher channel
   useEffect(() => {
     const subscribeToProgress = () => {
-      pusherClient.subscribe(matchId);
+      pusherClient.subscribe(match.id);
       const progressHandler = (update: MatchUpdateMessage) => {
         if (update.status == "open") {
           setStatus("open");
@@ -52,12 +51,12 @@ function usePusherProgress(matchId: string) {
       };
       pusherClient.bind("progress-update", progressHandler);
       return () => {
-        pusherClient.unsubscribe(matchId);
+        pusherClient.unsubscribe(match.id);
         pusherClient.unbind("progress-update", progressHandler);
       };
     };
     subscribeToProgress();
-  }, [matchId]);
+  }, [match.id]);
 
   return { participantProgress, status };
 }

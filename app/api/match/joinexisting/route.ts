@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     // Retrieve all matches
     const matches = await prisma.match.findMany({
       where: {
-        open: true,
+        allowJoin: true,
       },
     });
 
@@ -28,6 +28,7 @@ export async function GET(request: Request) {
         data: {
           ownerId: currentUser.id,
           textId: randomText.id,
+          allowJoin: true,
           participants: {
             create: [
               {

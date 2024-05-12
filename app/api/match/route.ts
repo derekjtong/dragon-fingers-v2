@@ -44,6 +44,7 @@ export async function POST(request: Request) {
       data: {
         ownerId: currentUser.id,
         textId: randomText.id,
+        allowJoin: true,
         participants: {
           create: [
             {
