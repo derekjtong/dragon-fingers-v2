@@ -3,7 +3,7 @@ import { Progress } from "@/components/ui/progress";
 import { Match } from "@prisma/client";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import usePusherProgress from "../hooks/usePusherProgress";
+import usePusherSocket from "../hooks/usePusherProgress";
 import useStopwatch from "../hooks/useTimer";
 
 interface TypeBoxProps {
@@ -19,13 +19,53 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const { participantProgress, status, startTime } = usePusherProgress(match);
+  const { participantProgress, status, startTime } = usePusherSocket(match);
+  const [countdown, setCountdown] = useState<number | null>();
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+
+    const updateCountdown = () => {
+      if (startTime) {
+        const startTimestamp = new Date(startTime).getTime();
+        const now = Date.now();
+        const secondsLeft = (startTimestamp - now) / 1000;
+
+        if (secondsLeft > 0) {
+          setTimerOn(false);
+          setCountdown(Math.ceil(secondsLeft));
+          if (!interval) {
+            interval = setInterval(updateCountdown, 1000);
+          }
+        } else {
+          if (status !== "closed" && match.endTime === null) {
+            setTimerOn(true);
+          }
+          setCountdown(null);
+          if (interval) {
+            clearInterval(interval);
+            interval = null;
+          }
+        }
+      } else {
+        setCountdown(null);
+      }
+    };
+
+    updateCountdown();
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [startTime, setTimerOn, match.endTime, status]);
 
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  }, [inputRef]);
+  }, [countdown, startTime, setTimerOn, match.endTime]);
 
   // Focus on the input when user clicks on page
   const handleHomeClick = () => {
@@ -39,7 +79,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
     setCapsLock(event.getModifierState && event.getModifierState("CapsLock"));
   };
 
-  // Update cursor position
+  // Update fake cursor position
   useEffect(() => {
     const updateCursor = () => {
       if (cursorRef.current && inputRef.current) {
@@ -65,7 +105,8 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
     }
   };
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle user typing text
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const currentText = event.target.value;
     setTypedText(currentText);
     setIsTyping(true);
@@ -75,10 +116,6 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
       setIsTyping(false);
     }, 500);
 
-    if (!timerOn) {
-      setTimerOn(true);
-    }
-
     if (currentText.length === text.length) {
       setTimerOn(false);
     }
@@ -86,6 +123,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
     axios.post(`/api/match/${match.id}`, { charCount: typedText.length });
   };
 
+  // Display progress and highlight incorrect as red
   const getHighlightedText = () => {
     return text.split("").map((char, index) => {
       let colorClass;
@@ -126,29 +164,38 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
         ) : (
           <div className="min-h-10"></div>
         )}
+        {startTime === null ? (
+          <div className="h-6">Waiting for owner to start...</div>
+        ) : countdown !== null ? (
+          <div className="mb-4 font-mono text-xl">Game starting in {countdown}</div>
+        ) : (
+          <div>
+            {typedText.length === text.length || status === "closed" || match.allowJoin === false ? (
+              ""
+            ) : (
+              <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
+            )}
+            <div className="mb-4 font-mono text-xl">{getHighlightedText()}</div>
+            <input
+              ref={inputRef}
+              type="text"
+              className="absolute h-0 w-0 opacity-0"
+              onChange={handleInputChange}
+              onKeyUp={handleKeyUp as any}
+              value={typedText}
+              aria-label="Type the text here"
+              disabled={typedText.length === text.length || status === "closed" || match.allowJoin === false}
+            />
+          </div>
+        )}
         <div>
-          {typedText.length === text.length || status === "closed" || match.allowJoin === false ? (
-            ""
-          ) : (
-            <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
-          )}
-          <div className="mb-4 font-mono text-xl">{getHighlightedText()}</div>
-          <input
-            ref={inputRef}
-            type="text"
-            className="absolute h-0 w-0 opacity-0"
-            onChange={handleChange}
-            onKeyUp={handleKeyUp as any}
-            value={typedText}
-            aria-label="Type the text here"
-            disabled={typedText.length === text.length || status === "closed" || match.allowJoin === false}
-          />
-        </div>
-        <div>
+          <div>Countdown: {countdown === null ? "null" : countdown}</div>
           <div>StartTime: {JSON.stringify(startTime)}</div>
+          <div>End time (db): {match.endTime ? match.endTime.toISOString() : "null"}</div>
           <div>DB Status: {match.allowJoin ? "Open" : "Closed"}</div>
           <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
+          <div>WPM {Math.round((typedText.length / 5) * (60000 / time))}</div>
         </div>
       </div>
     </div>

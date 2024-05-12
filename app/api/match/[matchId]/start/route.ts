@@ -38,7 +38,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     }
 
     // Check if match already started
-    if (match.inProgress) {
+    if (match.startTime && Date.now() >= new Date(match.startTime).getTime()) {
       return new NextResponse("Match is in progress", { status: 409 });
     }
 
@@ -48,9 +48,10 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     }
 
     // Send start game message
-    await pusherServer.trigger(matchId, "startTime", {
+    const startTimeMessage: MatchStartMessage = {
       startTime,
-    });
+    };
+    await pusherServer.trigger(matchId, "startTime", startTimeMessage);
 
     // Update record
     const updatedMatch = await prisma.match.update({
@@ -58,6 +59,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
         id: matchId,
       },
       data: {
+        allowJoin: false,
         startTime: new Date(startTime),
       },
     });
