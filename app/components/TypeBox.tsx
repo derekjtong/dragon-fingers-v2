@@ -191,7 +191,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
         <div>
           <div>Countdown: {countdown === null ? "null" : countdown}</div>
           <div>StartTime: {JSON.stringify(startTime)}</div>
-          <div>End time (db): {match.endTime ? match.endTime.toISOString() : "null"}</div>
+          <div>End time (db): {match.endTime ? JSON.stringify(match.endTime) : "null"}</div>
           <div>DB Status: {match.allowJoin ? "Open" : "Closed"}</div>
           <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
