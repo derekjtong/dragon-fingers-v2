@@ -27,25 +27,32 @@ function MatchPage({ params }: MatchPageProps) {
     const fetchMatch = async () => {
       try {
         const matchResponse = await axios.get(`/api/match/${params.matchId}`);
-        const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
+
+        if (matchResponse.data) {
+          setMatch(matchResponse.data);
+
+          if (matchResponse.data.owner) {
+            setOwner(matchResponse.data.owner);
+          }
+
+          // If match is open, send join request
+          if (matchResponse.data.allowJoin) {
+            await axios.post(`/api/match/${params.matchId}/participants`);
+          }
+
+          const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
+          setText(textResponse.data.text);
+        } else {
+          throw new Error("Match not found");
+        }
+
         const userResponse = await axios.get("/api/user");
-
-        if (matchResponse.data.owner) {
-          setOwner(matchResponse.data.owner);
-        }
-
-        // If match is open, send join request
-        if (matchResponse.data.open) {
-          await axios.post(`/api/match/${params.matchId}/participants`);
-        }
-
         setUser(userResponse.data);
-        setMatch(matchResponse.data);
-        setText(textResponse.data.text);
-        setIsLoading(false);
       } catch (err: any) {
         console.log(err.response.data);
         setError("Error: " + err.response.data);
+        setIsLoading(false);
+      } finally {
         setIsLoading(false);
       }
     };
