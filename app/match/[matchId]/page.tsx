@@ -94,7 +94,7 @@ function MatchPage({ params }: MatchPageProps) {
           {user?.id === match?.ownerId ? "Owner" : ""}
           {user?.isAdmin ? "Admin" : ""}
           {user?.id === match?.ownerId || user?.isAdmin ? (
-            <Button className="m-2" onClick={handleStartGame}>
+            <Button className="m-2" onClick={handleStartGame} disabled={match?.endTime !== null}>
               Start Game
             </Button>
           ) : (
