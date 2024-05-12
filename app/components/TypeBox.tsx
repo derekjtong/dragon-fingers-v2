@@ -1,4 +1,5 @@
 "use client";
+import { Progress } from "@/components/ui/progress";
 import { Match } from "@prisma/client";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
@@ -106,7 +107,16 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
       <div className={`caps-lock-indicator ${capsLock ? "text-red-500" : "text-transparent"}`}>
         {capsLock ? "CAPS LOCK IS ON" : "CAPS LOCK IS OFF"}
       </div>
-      <div className="relative">
+      <div className="w-96 border">
+        Progress (from channel):
+        {participantProgress.map((user) => (
+          <div key={user.userId} className="flex items-center">
+            <div>{user.name}</div>
+            <Progress value={Math.ceil((user.charCount / (text.length - 1)) * 100)} />
+          </div>
+        ))}
+      </div>
+      <div className="relative border">
         {timerOn || typedText.length === text.length ? (
           <div className="min-h-10">
             <div className="mb-2 cursor-pointer font-mono ">
@@ -117,32 +127,28 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
         ) : (
           <div className="min-h-10"></div>
         )}
-        {typedText.length === text.length || status === "closed" || match.allowJoin === false ? (
-          ""
-        ) : (
-          <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
-        )}
-        <div className="mb-4 font-mono text-xl">{getHighlightedText()}</div>
-        <input
-          ref={inputRef}
-          type="text"
-          className="absolute h-0 w-0 opacity-0"
-          onChange={handleChange}
-          onKeyUp={handleKeyUp as any}
-          value={typedText}
-          aria-label="Type the text here"
-          disabled={typedText.length === text.length || status === "closed" || match.allowJoin === false}
-        />
+        <div className="border">
+          {typedText.length === text.length || status === "closed" || match.allowJoin === false ? (
+            ""
+          ) : (
+            <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
+          )}
+          <div className="mb-4 font-mono text-xl">{getHighlightedText()}</div>
+          <input
+            ref={inputRef}
+            type="text"
+            className="absolute h-0 w-0 opacity-0"
+            onChange={handleChange}
+            onKeyUp={handleKeyUp as any}
+            value={typedText}
+            aria-label="Type the text here"
+            disabled={typedText.length === text.length || status === "closed" || match.allowJoin === false}
+          />
+        </div>
         <div>
           <div>DB Status: {match.allowJoin ? "Open" : "Closed"}</div>
           <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
-          Progress (from channel):{" "}
-          {participantProgress.map((user) => (
-            <div key={user.userId}>
-              User {user.userId}: {user.charCount} words
-            </div>
-          ))}
         </div>
       </div>
     </div>
