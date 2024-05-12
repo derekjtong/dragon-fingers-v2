@@ -73,7 +73,6 @@ model Match {
   ownerId      String    @db.ObjectId
   textId       String    @db.ObjectId
   allowJoin    Boolean   @default(true)
-  inProgress   Boolean   @default(false)
   createdAt    DateTime  @default(now())
   startTime    DateTime?
   endTime      DateTime?
