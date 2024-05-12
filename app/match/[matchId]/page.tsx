@@ -26,6 +26,7 @@ function MatchPage({ params }: MatchPageProps) {
     const fetchMatch = async () => {
       try {
         const matchResponse = await axios.get(`/api/match/${params.matchId}`);
+        const joinMatchResponse = await axios.post(`/api/match/${params.matchId}/participants`);
         const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
         const userResponse = await axios.get("/api/user");
         setUser(userResponse.data);
