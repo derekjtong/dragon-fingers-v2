@@ -1,5 +1,5 @@
 // Used when querying participant; will return selected fields from user relation
-// See api/match/[matchId]/participants
+// api/match/[matchId]/participants
 type ExtendedParticipant = {
   id: string;
   matchId: string;
@@ -14,14 +14,17 @@ type ExtendedParticipant = {
 };
 
 // Progress message used in pusher channels
+// api/match/[matchId]
+// api/match/[matchId]/participants
 type MatchUpdateMessage = {
   name: string;
   userId: string;
-  wordCount: number;
+  charCount: number;
+  end: boolean;
 };
 
 // User Data
-// See api/user get
+// api/user
 type UserData = {
   id: string;
   name: string;

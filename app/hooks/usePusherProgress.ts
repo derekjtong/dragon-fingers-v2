@@ -6,6 +6,7 @@ interface ParticipantProgress {
   name: string;
   userId: string;
   charCount: number;
+  end: boolean;
 }
 
 function usePusherProgress(matchId: string) {
@@ -20,6 +21,7 @@ function usePusherProgress(matchId: string) {
           name: participant.user.name,
           userId: participant.userId,
           charCount: 0,
+          end: false,
         }));
         setParticipantProgress(initialParticipants);
       } catch (error) {
