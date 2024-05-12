@@ -6,6 +6,7 @@ import { pusherClient } from "../libs/pusher";
 function usePusherProgress(match: Match) {
   const [participantProgress, setParticipantProgress] = useState<MatchUpdateMessage[]>([]);
   const [status, setStatus] = useState<GameStatus>(match.allowJoin ? "open" : !match.endTime ? "progress" : "closed");
+  const [startTime, setStartTime] = useState(match.startTime);
 
   // Fetch initial participants
   useEffect(() => {
@@ -49,6 +50,11 @@ function usePusherProgress(match: Match) {
           return index !== -1 ? [...prev.slice(0, index), update, ...prev.slice(index + 1)] : [...prev, update];
         });
       };
+      const startTimeHandler = (startTimeUpdate: Date) => {
+        setStartTime(startTimeUpdate);
+      };
+
+      pusherClient.bind("startTime", startTimeHandler);
       pusherClient.bind("progress-update", progressHandler);
       return () => {
         pusherClient.unsubscribe(match.id);
@@ -58,7 +64,7 @@ function usePusherProgress(match: Match) {
     subscribeToProgress();
   }, [match.id]);
 
-  return { participantProgress, status };
+  return { participantProgress, status, startTime };
 }
 
 export default usePusherProgress;

@@ -80,6 +80,12 @@ function MatchPage({ params }: MatchPageProps) {
     axios.patch(`/api/match/${params.matchId}`);
   };
 
+  const handleStartGame = async () => {
+    const startTime = new Date(new Date().getTime() + 5000);
+
+    axios.post(`/api/match/${params.matchId}/start`, { startTime: startTime.toISOString() });
+  };
+
   return (
     <div>
       <div className="h-screeen fixed ml-48 mt-64 flex flex-col items-start border p-10">
@@ -89,7 +95,13 @@ function MatchPage({ params }: MatchPageProps) {
           <div>{match ? match.id : ""}</div>
           {user?.id === match?.ownerId ? "Owner" : ""}
           {user?.isAdmin ? "Admin" : ""}
-          {user?.id === match?.ownerId || user?.isAdmin ? <Button className="m-2">Start Game</Button> : ""}
+          {user?.id === match?.ownerId || user?.isAdmin ? (
+            <Button className="m-2" onClick={handleStartGame}>
+              Start Game
+            </Button>
+          ) : (
+            ""
+          )}
           {user?.id === match?.ownerId || user?.isAdmin ? <Button onClick={handleEndGame}>End Game</Button> : ""}
         </div>
       </div>

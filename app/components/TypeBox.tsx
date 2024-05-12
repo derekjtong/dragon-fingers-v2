@@ -19,7 +19,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const { participantProgress, status } = usePusherProgress(match);
+  const { participantProgress, status, startTime } = usePusherProgress(match);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -145,6 +145,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
           />
         </div>
         <div>
+          <div>StartTime: {JSON.stringify(startTime)}</div>
           <div>DB Status: {match.allowJoin ? "Open" : "Closed"}</div>
           <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
