@@ -24,6 +24,15 @@ export async function GET(request: Request, { params }: { params: IParams }) {
       where: {
         id: matchId,
       },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
+      },
     });
 
     if (!match) {

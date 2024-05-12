@@ -16,6 +16,7 @@ type MatchPageProps = {
 
 function MatchPage({ params }: MatchPageProps) {
   const [match, setMatch] = useState<Match>();
+  const [owner, setOwner] = useState<UserData>();
   const [text, setText] = useState("");
   const [user, setUser] = useState<UserData>();
   const [error, setError] = useState("");
@@ -28,6 +29,10 @@ function MatchPage({ params }: MatchPageProps) {
         const matchResponse = await axios.get(`/api/match/${params.matchId}`);
         const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
         const userResponse = await axios.get("/api/user");
+
+        if (matchResponse.data.owner) {
+          setOwner(matchResponse.data.owner);
+        }
 
         // If match is open, send join request
         if (matchResponse.data.open) {
@@ -72,7 +77,7 @@ function MatchPage({ params }: MatchPageProps) {
     <div>
       <div className="h-screeen fixed ml-48 mt-64 flex flex-col items-start border p-10">
         <div className="flex flex-col items-center">
-          <div className="text-2xl">{session.data?.user?.name}&apos;s game</div>
+          <div className="text-2xl">{owner?.name}&apos;s game</div>
           <div> Share this code with your friends </div>
           <div>{match ? match.id : ""}</div>
           {user?.id === match?.ownerId ? "Owner commands" : ""}
