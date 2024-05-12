@@ -130,7 +130,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
     }
 
     // If not owner or admin, unauthorized
-    if (match.ownerId !== currentUser?.image && !currentUser?.isAdmin) {
+    if (match.ownerId !== currentUser?.id && !currentUser?.isAdmin) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
