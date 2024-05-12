@@ -29,8 +29,8 @@ function JoinExistingPage() {
         const match = response.data;
         router.push(`/match/${match.id}`);
       } catch (error) {
-        console.error("Error creating match:", error);
-        setError("Failed to create match");
+        console.error("Error joining a match:", error);
+        setError("Failed joining a match");
       }
     };
     fetchGame();
