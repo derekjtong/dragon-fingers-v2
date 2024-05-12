@@ -1,7 +1,7 @@
 "use client";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { pusherClient } from "../libs/pusher";
+import usePusherProgress from "../hooks/usePusherProgress";
 import Stopwatch from "./Stopwatch";
 
 interface TypeBoxProps {
@@ -12,64 +12,19 @@ interface TypeBoxProps {
 interface ParticipantProgress {
   name: string;
   userId: string;
-  wordCount: number;
+  charCount: number;
 }
 
 const TypeBox = ({ matchId, text }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
-  // const [text, setPlaceholderText] = useState<string>("the quick brown fox jumps over the lazy dog");
   const [typedText, setTypedText] = useState<string>("");
   const [startTime, setStartTime] = useState<number | null>(null);
   const [isTyping, setIsTyping] = useState(false);
-  const [participantProgress, setParticipantProgress] = useState<ParticipantProgress[]>([]);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const [time, setTime] = useState<number>(0);
   const [timerOn, setTimerOn] = useState<boolean>(false);
-  const [countDown, setCountDown] = useState(0);
-
-  // Fetch participants
-  useEffect(() => {
-    const fetchParticipants = async () => {
-      try {
-        const response = await axios.get(`/api/match/${matchId}/participants`);
-        const initialParticipants = response.data.map((participant: ExtendedParticipant) => ({
-          name: participant.user.name,
-          userId: participant.userId,
-          wordCount: 0,
-        }));
-        setParticipantProgress(initialParticipants);
-      } catch (error) {
-        console.error("Error fetching participants:", error);
-      }
-    };
-
-    fetchParticipants();
-  }, [matchId]);
-
-  // Progress socket
-  useEffect(() => {
-    pusherClient.subscribe(matchId);
-
-    const progressHandler = (update: MatchUpdateMessage) => {
-      setParticipantProgress((prev) => {
-        const index = prev.findIndex((p) => p.userId === update.userId);
-        if (index !== -1) {
-          const updatedParticipants = [...prev];
-          updatedParticipants[index] = { ...updatedParticipants[index], wordCount: update.wordCount };
-          return updatedParticipants;
-        } else {
-          return [...prev, update];
-        }
-      });
-    };
-
-    pusherClient.bind("progress-update", progressHandler);
-    return () => {
-      pusherClient.unsubscribe(matchId);
-      pusherClient.unbind("progress-update", progressHandler);
-    };
-  }, [matchId]);
+  const participantProgress = usePusherProgress(matchId);
 
   // Focus on the input when the component mounts
   useEffect(() => {
@@ -123,13 +78,6 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
     if (timerOn && startTime === null) {
       setStartTime(Date.now());
     }
-
-    if (!timerOn && startTime !== null) {
-      const endTime = Date.now();
-      const timeTaken = (endTime - startTime) / 1000;
-      // setTime(timeTaken);
-      setStartTime(null);
-    }
   }, [timerOn, startTime]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,8 +98,9 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
       setTimerOn(false);
     }
 
-    axios.post(`/api/match/${matchId}`, { wordCount: typedText.length });
+    axios.post(`/api/match/${matchId}`, { charCount: typedText.length });
   };
+
   const getHighlightedText = () => {
     return text.split("").map((char, index) => {
       let colorClass;
@@ -195,10 +144,11 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
           disabled={typedText.length === text.length}
         />
         <div>
+          <div>Time Taken {time}</div>
           Progress (from channel):{" "}
           {participantProgress.map((user) => (
             <div key={user.userId}>
-              User {user.name}: {user.wordCount} words
+              User {user.name}: {user.charCount} words
             </div>
           ))}
         </div>
