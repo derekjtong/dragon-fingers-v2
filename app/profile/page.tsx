@@ -1,21 +1,50 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PuffLoader } from "react-spinners";
 
 function ProfilePage() {
   const [userData, setUserData] = useState<UserData>();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
   const session = useSession();
   const router = useRouter();
+
   useEffect(() => {
     const fetchUserData = async () => {
-      const response = await axios.get("/api/user");
-      setUserData(response.data);
+      try {
+        const response = await axios.get("/api/user");
+        setUserData(response.data);
+        setIsLoading(false);
+      } catch (error: any) {
+        setError("Error: " + error.response.data);
+        setIsLoading(false);
+      }
     };
     fetchUserData();
   }, []);
-  if (session.status === "loading") return <div></div>;
+
+  if (isLoading)
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <PuffLoader />
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <div className="p-3 text-3xl">{error}</div>
+        <Link href="/">
+          <Button variant={"destructive"}>Return to home</Button>
+        </Link>
+      </div>
+    );
+
   if (session.status === "unauthenticated") router.push("/");
   return (
     <>
