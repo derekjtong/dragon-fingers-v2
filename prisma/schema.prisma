@@ -21,6 +21,7 @@ model User {
   updatedAt      DateTime  @updatedAt
   isAdmin        Boolean   @default(false)
   Stats          Stats?
+  isDeleted      Boolean   @default(false)
 
   accounts     Account[]
   ownedMatches Match[]       @relation(name: "MatchOwner")

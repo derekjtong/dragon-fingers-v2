@@ -46,11 +46,16 @@ function ProfilePage() {
     );
 
   if (session.status === "unauthenticated") router.push("/");
+
+  const handleDelete = async () => {
+    await axios.delete("/api/user");
+  };
+
   return (
     <>
       {session && (
         <div className="flex h-screen flex-col items-center justify-center">
-          <div className="text-3xl">{session.data?.user?.name}&apos;s profile</div>
+          <div className="mb-8 text-3xl">{session.data?.user?.name}&apos;s profile</div>
           <div className="text-xl">
             <div>Average WPM: 100</div>
             <div>ID: {userData?.id}</div>
@@ -58,11 +63,15 @@ function ProfilePage() {
             <div>Email: {userData?.email}</div>
             <div>Created: {userData?.createdAt}</div>
             <div>Is Admin: {userData?.isAdmin ? "Yes" : "No"}</div>
+            <div>Is Deleted: {userData?.isDeleted ? "Yes" : "No"}</div>
             <div>Average Speed: {userData?.averageSpeed}</div>
             <div>Best Speed: {userData?.bestSpeed}</div>
             <div>Matches Played: {userData?.matchesPlayed}</div>
             <div>Matches Won: {userData?.matchesWon}</div>
           </div>
+          <Button variant={"destructive"} className="mt-8" onClick={handleDelete}>
+            Delete Account
+          </Button>
         </div>
       )}
     </>

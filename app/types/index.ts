@@ -34,6 +34,7 @@ type UserData = {
   email: string;
   createdAt: string;
   isAdmin: boolean;
+  isDeleted: boolean;
   averageSpeed: number;
   bestSpeed: number;
   matchesPlayed: number;
