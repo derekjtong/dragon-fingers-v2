@@ -26,9 +26,14 @@ function MatchPage({ params }: MatchPageProps) {
     const fetchMatch = async () => {
       try {
         const matchResponse = await axios.get(`/api/match/${params.matchId}`);
-        const joinMatchResponse = await axios.post(`/api/match/${params.matchId}/participants`);
         const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
         const userResponse = await axios.get("/api/user");
+
+        // If match is open, send join request
+        if (matchResponse.data.open) {
+          await axios.post(`/api/match/${params.matchId}/participants`);
+        }
+
         setUser(userResponse.data);
         setMatch(matchResponse.data);
         setText(textResponse.data.text);
@@ -59,6 +64,10 @@ function MatchPage({ params }: MatchPageProps) {
       </div>
     );
 
+  const handleEndGame = async () => {
+    axios.patch(`/api/match/${params.matchId}`);
+  };
+
   return (
     <div>
       <div className="h-screeen fixed ml-48 mt-64 flex w-full flex-col items-start ">
@@ -67,11 +76,10 @@ function MatchPage({ params }: MatchPageProps) {
           <div> Share this code with your friends </div>
           <div>{match ? match.id : ""}</div>
           {user?.id === match?.ownerId ? <Button>Start Game</Button> : ""}
+          {user?.id === match?.ownerId ? <Button onClick={handleEndGame}>End Game</Button> : ""}
         </div>
       </div>
-      <div className="flex h-screen flex-grow flex-col items-center justify-center ">
-        <TypeBox matchId={params.matchId} text={text} />
-      </div>
+      <div className="flex h-screen flex-grow flex-col items-center justify-center ">{match && <TypeBox match={match} text={text} />}</div>
     </div>
   );
 }
