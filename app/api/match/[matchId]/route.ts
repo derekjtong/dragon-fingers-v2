@@ -58,7 +58,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     const body = await request.json();
     const { charCount } = body;
 
-    if (!currentUser?.id || !currentUser?.email) {
+    if (!currentUser || !currentUser.id || !currentUser.email) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -67,6 +67,18 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       userId: currentUser.id,
       charCount,
       status: "",
+    });
+
+    const updatedParticipant = await prisma.participant.update({
+      where: {
+        userId_matchId: {
+          matchId: matchId,
+          userId: currentUser.id,
+        },
+      },
+      data: {
+        charCount: charCount,
+      },
     });
 
     return new NextResponse("Success", { status: 200 });
