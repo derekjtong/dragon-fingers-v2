@@ -39,6 +39,10 @@ export async function GET(request: Request, { params }: { params: IParams }) {
       return new NextResponse("No match found with the given code", { status: 404 });
     }
 
+    if (!match.owner) {
+      match.owner = { id: "deleted-user", name: "Deleted User", image: "" };
+    }
+
     return NextResponse.json(match);
   } catch (err) {
     console.error("Error fetching match:", err);
@@ -77,6 +81,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
   try {
     // Record current time
     const endTime = new Date();
+    const currentUser = await getCurrentUser();
 
     const { matchId } = params;
 
@@ -100,6 +105,11 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
     // Check if match is already closed
     if (!match.allowJoin) {
       return new NextResponse("Match is already closed", { status: 409 });
+    }
+
+    // If not owner or admin, unauthorized
+    if (match.ownerId !== currentUser?.image && !currentUser?.isAdmin) {
+      return new NextResponse("Unauthorized", { status: 401 });
     }
 
     // Send end game message
