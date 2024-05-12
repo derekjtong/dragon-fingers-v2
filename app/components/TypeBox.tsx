@@ -1,29 +1,23 @@
 "use client";
+import { Match } from "@prisma/client";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import usePusherProgress from "../hooks/usePusherProgress";
 import useStopwatch from "../hooks/useTimer";
 
 interface TypeBoxProps {
-  matchId: string;
+  match: Match;
   text: string;
 }
 
-interface ParticipantProgress {
-  name: string;
-  userId: string;
-  charCount: number;
-}
-
-const TypeBox = ({ matchId, text }: TypeBoxProps) => {
+const TypeBox = ({ match, text }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [typedText, setTypedText] = useState<string>("");
-  const [startTime, setStartTime] = useState<number | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const participantProgress = usePusherProgress(matchId);
+  const { participantProgress, status } = usePusherProgress(match.id);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -89,7 +83,7 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
       setTimerOn(false);
     }
 
-    axios.post(`/api/match/${matchId}`, { charCount: typedText.length });
+    axios.post(`/api/match/${match.id}`, { charCount: typedText.length });
   };
 
   const getHighlightedText = () => {
@@ -121,10 +115,10 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
         ) : (
           <div className="min-h-10"></div>
         )}
-        {typedText.length !== text.length ? (
-          <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
-        ) : (
+        {typedText.length === text.length || status === "closed" || !match.open ? (
           ""
+        ) : (
+          <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
         )}
         <div className="mb-4 font-mono text-xl">{getHighlightedText()}</div>
         <input
@@ -135,14 +129,15 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
           onKeyUp={handleKeyUp as any}
           value={typedText}
           aria-label="Type the text here"
-          disabled={typedText.length === text.length}
+          disabled={typedText.length === text.length || status === "closed" || !match.open}
         />
         <div>
+          <div>Status: {match.open && status == "open" ? "Open" : "Closed"}</div>
           <div>Time Taken {time}</div>
           Progress (from channel):{" "}
           {participantProgress.map((user) => (
             <div key={user.userId}>
-              User {user.name}: {user.charCount} words
+              User {user.userId}: {user.charCount} words
             </div>
           ))}
         </div>
