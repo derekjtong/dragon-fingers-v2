@@ -70,7 +70,7 @@ function MatchPage({ params }: MatchPageProps) {
 
   return (
     <div>
-      <div className="h-screeen fixed ml-48 mt-64 flex w-full flex-col items-start ">
+      <div className="h-screeen fixed ml-48 mt-64 flex flex-col items-start border p-10">
         <div className="flex flex-col items-center">
           <div className="text-2xl">{session.data?.user?.name}&apos;s game</div>
           <div> Share this code with your friends </div>
