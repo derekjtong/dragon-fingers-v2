@@ -64,7 +64,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     }
 
     // Do not allow users to join not open matches
-    if (!match.open) {
+    if (!match.allowJoin) {
       return new NextResponse("Match not open for new participants", { status: 403 });
     }
 
