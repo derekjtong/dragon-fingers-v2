@@ -75,7 +75,8 @@ function MatchPage({ params }: MatchPageProps) {
           <div className="text-2xl">{session.data?.user?.name}&apos;s game</div>
           <div> Share this code with your friends </div>
           <div>{match ? match.id : ""}</div>
-          {user?.id === match?.ownerId ? <Button>Start Game</Button> : ""}
+          {user?.id === match?.ownerId ? "Owner commands" : ""}
+          {user?.id === match?.ownerId ? <Button className="m-2">Start Game</Button> : ""}
           {user?.id === match?.ownerId ? <Button onClick={handleEndGame}>End Game</Button> : ""}
         </div>
       </div>
