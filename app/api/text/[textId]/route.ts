@@ -1,13 +1,13 @@
-import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
+import { NextResponse } from "next/server";
 
 interface IParams {
-  textId?: string;
+  textId: string;
 }
 
 export async function GET(request: Request, { params }: { params: IParams }) {
   try {
-    const { textId: textId } = params;
+    const { textId } = params;
 
     // Validate that textId is provided
     if (!textId) {
@@ -27,22 +27,14 @@ export async function GET(request: Request, { params }: { params: IParams }) {
       },
     });
 
-    // Check if the text was found
-    if (text) {
-      // If found, return the text data in JSON format
-      return new NextResponse(JSON.stringify(text), {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        status: 200, // OK status
-      });
-    } else {
-      // If no text is found, return a 404 Not Found response
+    // Check if missing text
+    if (!text) {
       return new NextResponse("No text found with the given id", { status: 404 });
     }
-  } catch (err) {
-    // Log the error and return a 500 Internal Server Error response
-    console.error("Error fetching text:", err);
+
+    return NextResponse.json(text);
+  } catch (error) {
+    console.error("Error fetching text:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
