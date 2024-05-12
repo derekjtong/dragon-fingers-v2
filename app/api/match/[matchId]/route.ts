@@ -58,16 +58,17 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     const body = await request.json();
     const { charCount } = body;
 
-    if (!currentUser || !currentUser.id || !currentUser.email) {
+    if (!currentUser || !currentUser.id || !currentUser.email || !currentUser.name) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
-    await pusherServer.trigger(matchId, "progress-update", {
+    const update: MatchUpdateMessage = {
       name: currentUser.name,
       userId: currentUser.id,
       charCount,
-      status: "",
-    });
+      status: "progress",
+    };
+    await pusherServer.trigger(matchId, "progress-update", update);
 
     const updatedParticipant = await prisma.participant.update({
       where: {
@@ -115,12 +116,13 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
     }
 
     // Send end game message
-    await pusherServer.trigger(matchId, "progress-update", {
+    const update: MatchUpdateMessage = {
       name: "admin",
       userId: "whatever",
       charCount: 0,
       status: "closed",
-    });
+    };
+    await pusherServer.trigger(matchId, "progress-update", update);
 
     // Check if match is already closed
     if (match.endTime !== null) {

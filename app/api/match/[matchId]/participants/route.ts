@@ -42,7 +42,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     const { matchId } = params;
 
     // Validate user
-    if (!currentUser?.id || !currentUser?.email) {
+    if (!currentUser?.id || !currentUser?.email || !currentUser?.name) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
 
@@ -69,12 +69,13 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     }
 
     // Send update
-    await pusherServer.trigger(matchId, "progress-update", {
+    const update: MatchUpdateMessage = {
       name: currentUser.name,
       userId: currentUser.id,
       charCount: 0,
-      status: "",
-    });
+      status: "open",
+    };
+    await pusherServer.trigger(matchId, "progress-update", update);
 
     // Search participant related to user and match
     const existingParticipant = await prisma.participant.findFirst({
