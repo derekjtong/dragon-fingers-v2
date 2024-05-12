@@ -114,16 +114,6 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       return new NextResponse("Match not found", { status: 404 });
     }
 
-    // Check if match is already closed
-    if (!match.allowJoin) {
-      return new NextResponse("Match is already closed", { status: 409 });
-    }
-
-    // If not owner or admin, unauthorized
-    if (match.ownerId !== currentUser?.image && !currentUser?.isAdmin) {
-      return new NextResponse("Unauthorized", { status: 401 });
-    }
-
     // Send end game message
     await pusherServer.trigger(matchId, "progress-update", {
       name: "admin",
@@ -132,13 +122,23 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       status: "closed",
     });
 
+    // Check if match is already closed
+    if (match.endTime !== null) {
+      return new NextResponse("Match is already closed", { status: 208 });
+    }
+
+    // If not owner or admin, unauthorized
+    if (match.ownerId !== currentUser?.image && !currentUser?.isAdmin) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
     // Update record
     const updatedMatch = await prisma.match.update({
       where: {
         id: matchId,
       },
       data: {
-        endTime,
+        endTime: new Date(),
         allowJoin: false,
       },
     });
