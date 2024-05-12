@@ -25,7 +25,7 @@ function SoloPage() {
 
       console.log(session);
       try {
-        const response = await axios.get("/api/match/new");
+        const response = await axios.post("/api/match");
         const match = response.data;
         router.push(`/match/${match.id}`);
       } catch (error) {
@@ -45,7 +45,7 @@ function SoloPage() {
         </Link>
       </div>
     );
-  
+
   return (
     <div className="flex h-screen flex-col items-center justify-center">
       <PuffLoader />

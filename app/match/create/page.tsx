@@ -20,7 +20,7 @@ function CreatePage() {
     }
 
     try {
-      const response = await axios.get("/api/match/new");
+      const response = await axios.post("/api/match");
       const match = response.data;
       router.push(`/match/${match.id}`);
     } catch (error) {
