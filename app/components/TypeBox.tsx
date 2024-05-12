@@ -14,6 +14,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [typedText, setTypedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
@@ -34,9 +35,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
 
   // Handle Caps Lock detection
   const handleKeyUp = (event: KeyboardEvent) => {
-    if (event.getModifierState && event.getModifierState("CapsLock")) {
-      alert("Caps Lock is on");
-    }
+    setCapsLock(event.getModifierState && event.getModifierState("CapsLock"));
   };
 
   // Update cursor position
@@ -103,7 +102,10 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   };
 
   return (
-    <div className="flex h-screen w-full items-center justify-center" onClick={handleHomeClick}>
+    <div className="flex h-screen w-full flex-col items-center justify-center border border-black" onClick={handleHomeClick}>
+      <div className={`caps-lock-indicator ${capsLock ? "text-red-500" : "text-transparent"}`}>
+        {capsLock ? "CAPS LOCK IS ON" : "CAPS LOCK IS OFF"}
+      </div>
       <div className="relative">
         {timerOn || typedText.length === text.length ? (
           <div className="min-h-10">
