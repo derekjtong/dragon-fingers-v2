@@ -26,6 +26,10 @@ type MatchUpdateMessage = {
   status: GameStatus;
 };
 
+type MatchStartMessage = {
+  startTime: Date | null;
+};
+
 // User Data
 // api/user
 type UserData = {
