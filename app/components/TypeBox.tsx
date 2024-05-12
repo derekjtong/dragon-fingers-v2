@@ -103,20 +103,19 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   };
 
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center border border-black" onClick={handleHomeClick}>
-      <div className={`caps-lock-indicator ${capsLock ? "text-red-500" : "text-transparent"}`}>
-        {capsLock ? "CAPS LOCK IS ON" : "CAPS LOCK IS OFF"}
-      </div>
-      <div className="w-96 border">
-        Progress (from channel):
+    <div className="flex h-screen w-full flex-col items-center justify-center" onClick={handleHomeClick}>
+      <div className="w-96">
         {participantProgress.map((user) => (
-          <div key={user.userId} className="flex items-center">
+          <div key={user.userId} className="my-4">
             <div>{user.name}</div>
             <Progress value={Math.ceil((user.charCount / (text.length - 1)) * 100)} />
           </div>
         ))}
       </div>
-      <div className="relative border">
+      <div className={`caps-lock-indicator ${capsLock ? "text-red-500" : "text-transparent"}`}>
+        {capsLock ? "CAPS LOCK IS ON" : "CAPS LOCK IS OFF"}
+      </div>
+      <div className="relative">
         {timerOn || typedText.length === text.length ? (
           <div className="min-h-10">
             <div className="mb-2 cursor-pointer font-mono ">
@@ -127,7 +126,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
         ) : (
           <div className="min-h-10"></div>
         )}
-        <div className="border">
+        <div>
           {typedText.length === text.length || status === "closed" || match.allowJoin === false ? (
             ""
           ) : (
