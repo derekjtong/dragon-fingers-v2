@@ -2,7 +2,7 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import usePusherProgress from "../hooks/usePusherProgress";
-import Stopwatch from "./Stopwatch";
+import useStopwatch from "../hooks/useTimer";
 
 interface TypeBoxProps {
   matchId: string;
@@ -22,11 +22,9 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
   const [isTyping, setIsTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
-  const [time, setTime] = useState<number>(0);
-  const [timerOn, setTimerOn] = useState<boolean>(false);
+  const { time, timerOn, setTimerOn, setTime } = useStopwatch();
   const participantProgress = usePusherProgress(matchId);
 
-  // Focus on the input when the component mounts
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -73,13 +71,6 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
     }
   };
 
-  // Start the timer
-  useEffect(() => {
-    if (timerOn && startTime === null) {
-      setStartTime(Date.now());
-    }
-  }, [timerOn, startTime]);
-
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const currentText = event.target.value;
     setTypedText(currentText);
@@ -122,7 +113,10 @@ const TypeBox = ({ matchId, text }: TypeBoxProps) => {
       <div className="relative">
         {timerOn || typedText.length === text.length ? (
           <div className="min-h-10">
-            <Stopwatch time={time} setTime={setTime} timerOn={timerOn} setTimerOn={setTimerOn} />
+            <div className="mb-2 cursor-pointer font-mono ">
+              {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
+              {("0" + ((time / 10) % 100)).slice(-2)}
+            </div>
           </div>
         ) : (
           <div className="min-h-10"></div>
