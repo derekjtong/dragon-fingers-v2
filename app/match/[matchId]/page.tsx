@@ -3,7 +3,6 @@ import TypeBox from "@/app/components/TypeBox";
 import { Button } from "@/components/ui/button";
 import { Match } from "@prisma/client";
 import axios from "axios";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { PuffLoader } from "react-spinners";
@@ -21,7 +20,6 @@ function MatchPage({ params }: MatchPageProps) {
   const [user, setUser] = useState<UserData>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const session = useSession();
 
   useEffect(() => {
     const fetchMatch = async () => {
@@ -88,7 +86,7 @@ function MatchPage({ params }: MatchPageProps) {
 
   return (
     <div>
-      <div className="h-screeen fixed ml-48 mt-64 flex flex-col items-start border p-10">
+      <div className="fixed flex h-screen flex-col items-start justify-center border p-10">
         <div className="flex flex-col items-center">
           <div className="text-2xl">{owner?.name}&apos;s game</div>
           <div> Share this code with your friends </div>
