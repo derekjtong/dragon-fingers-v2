@@ -2,15 +2,11 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { pusherClient } from "../libs/pusher";
 
-interface ParticipantProgress {
-  name: string;
-  userId: string;
-  charCount: number;
-  end: boolean;
-}
+type GameStatus = "open" | "progress" | "closed" | "";
 
 function usePusherProgress(matchId: string) {
-  const [participantProgress, setParticipantProgress] = useState<ParticipantProgress[]>([]);
+  const [participantProgress, setParticipantProgress] = useState<MatchUpdateMessage[]>([]);
+  const [status, setStatus] = useState<GameStatus>("");
 
   // Fetch initial participants
   useEffect(() => {
@@ -20,8 +16,8 @@ function usePusherProgress(matchId: string) {
         const initialParticipants = response.data.map((participant: ExtendedParticipant) => ({
           name: participant.user.name,
           userId: participant.userId,
-          charCount: 0,
-          end: false,
+          charCount: participant.charCount,
+          status: "",
         }));
         setParticipantProgress(initialParticipants);
       } catch (error) {
@@ -37,6 +33,18 @@ function usePusherProgress(matchId: string) {
     const subscribeToProgress = () => {
       pusherClient.subscribe(matchId);
       const progressHandler = (update: MatchUpdateMessage) => {
+        if (update.status == "open") {
+          setStatus("open");
+        }
+        if (update.status == "progress") {
+          setStatus("progress");
+        }
+        if (update.status == "closed") {
+          setStatus("closed");
+        }
+        if (update.name === "admin") {
+          return;
+        }
         setParticipantProgress((prev) => {
           const index = prev.findIndex((p) => p.userId === update.userId);
           return index !== -1 ? [...prev.slice(0, index), update, ...prev.slice(index + 1)] : [...prev, update];
@@ -51,7 +59,7 @@ function usePusherProgress(matchId: string) {
     subscribeToProgress();
   }, [matchId]);
 
-  return participantProgress;
+  return { participantProgress, status };
 }
 
 export default usePusherProgress;

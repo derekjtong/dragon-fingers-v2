@@ -73,7 +73,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       name: currentUser.name,
       userId: currentUser.id,
       charCount: 0,
-      end: false,
+      status: "",
     });
 
     // Search participant related to user and match

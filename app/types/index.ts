@@ -21,7 +21,7 @@ type MatchUpdateMessage = {
   name: string;
   userId: string;
   charCount: number;
-  end: boolean;
+  status: "open" | "progress" | "closed" | "";
 };
 
 // User Data
