@@ -1,4 +1,7 @@
 import getAllMatches from "@/app/actions/getAllMatches";
+import getTexts from "@/app/actions/getAllTexts";
+import getCurrentUser from "@/app/actions/getCurrentUser";
+import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -16,6 +19,43 @@ export async function GET(request: Request) {
   } catch (error) {
     // Log the error and return a 500 Internal Server Error response
     console.error("Failed to retrieve text:", error);
+    return new NextResponse("Internal Error", {
+      status: 500,
+    });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    // Attempt to retrieve current user from NextAuth
+    const currentUser = await getCurrentUser();
+
+    // If no user found, return not logged in error
+    if (!currentUser || !currentUser.id) {
+      throw new Error("User must be logged in");
+    }
+
+    // Select a random text
+    const texts = await getTexts();
+    const randomText = texts[Math.floor(Math.random() * texts.length)];
+
+    // Create a new match
+    const newMatch = await prisma.match.create({
+      data: {
+        ownerId: currentUser.id,
+        textId: randomText.id,
+        participants: {
+          create: [
+            {
+              userId: currentUser.id,
+            },
+          ],
+        },
+      },
+    });
+
+    return NextResponse.json(newMatch);
+  } catch (error: any) {
     return new NextResponse("Internal Error", {
       status: 500,
     });
