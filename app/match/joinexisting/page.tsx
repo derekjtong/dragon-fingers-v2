@@ -23,7 +23,6 @@ function JoinExistingPage() {
         return;
       }
 
-      console.log(session);
       try {
         const response = await axios.get("/api/match/joinexisting");
         const match = response.data;
