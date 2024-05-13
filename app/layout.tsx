@@ -1,4 +1,6 @@
+import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+
 import NavBar from "./components/Navbar";
 import AuthContext from "./context/AuthContext";
 
@@ -17,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <NavBar />
           {children}
         </AuthContext>
+        <Analytics />
         <SpeedInsights />
       </body>
     </html>
