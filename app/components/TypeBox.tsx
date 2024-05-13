@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Match } from "@prisma/client";
 import axios from "axios";
@@ -140,6 +141,10 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
     });
   };
 
+  const handleCompleteGame = async () => {
+    axios.patch(`/api/match/${match.id}/participants`, { time: time });
+  };
+
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center" onClick={handleHomeClick}>
       <div className="w-96">
@@ -196,6 +201,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
           <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
           <div>WPM {Math.round((typedText.length / 5) * (60000 / time))}</div>
+          <Button onClick={handleCompleteGame}>complete game</Button>
         </div>
       </div>
     </div>
