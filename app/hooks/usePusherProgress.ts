@@ -40,6 +40,9 @@ function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
         if (update.status == "open") {
           setGameStatus("open");
         }
+        if (update.status == "starting") {
+          setGameStatus("starting");
+        }
         if (update.status == "inprogress") {
           setGameStatus("inprogress");
         }

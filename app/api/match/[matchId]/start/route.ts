@@ -59,10 +59,25 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       name: "admin",
       userId: "whatever",
       charCount: -1,
-      status: "inprogress",
+      status: "starting",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 
+    // Cancel any previous
+    await inngestClient.send({
+      name: "match/schedule-start.cancel",
+      data: {
+        matchId: matchId,
+      },
+    });
+    // Trigger inngest
+    await inngestClient.send({
+      name: "match/schedule-start",
+      data: {
+        matchId: matchId,
+        // 5 (countdown) + game duration
+      },
+    });
     // Update record
     const updatedMatch = await prisma.match.update({
       where: {
@@ -94,6 +109,86 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     return NextResponse.json(updatedMatch);
   } catch (error: any) {
     console.log("Error ending match:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
+
+// Cancel a match
+export async function DELETE(request: Request, { params }: { params: IParams }) {
+  try {
+    const { matchId } = params;
+    const currentUser = await getCurrentUser();
+
+    // User must be logged in
+    if (!currentUser?.id || !currentUser?.email) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // Validate matchId format
+    if (!matchId || !/^[0-9a-fA-F]{24}$/.test(matchId)) {
+      return new NextResponse("Invalid match format", { status: 404 });
+    }
+
+    // Fetch the match from the database using the provided matchId
+    const match = await prisma.match.findUnique({
+      where: {
+        id: matchId,
+      },
+    });
+
+    // Check if match exists
+    if (!match) {
+      return new NextResponse("Match not found", { status: 404 });
+    }
+
+    // Check if user is authorized to cancel the match (owner or admin)
+    if (match.ownerId !== currentUser?.id && !currentUser?.isAdmin) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // Update the match to reflect cancellation
+    const updatedMatch = await prisma.match.update({
+      where: {
+        id: matchId,
+      },
+      data: {
+        allowJoin: true,
+        startTime: null,
+      },
+    });
+
+    // Cancel scheduled tasks
+    await inngestClient.send({
+      name: "match/schedule-start.cancel",
+      data: {
+        matchId: matchId,
+      },
+    });
+    await inngestClient.send({
+      name: "match/schedule-end.cancel",
+      data: {
+        matchId: matchId,
+      },
+    });
+
+    // Send start game message
+    const startTimeMessage: MatchStartMessage = {
+      startTime: null,
+    };
+    await pusherServer.trigger(matchId, "startTime", startTimeMessage);
+
+    // Notify all participants of the cancellation
+    const update: MatchUpdateMessage = {
+      name: "admin",
+      userId: "whatever",
+      charCount: -1,
+      status: "open",
+    };
+    await pusherServer.trigger(matchId, "progress-update", update);
+
+    return NextResponse.json({ message: "Match cancelled successfully", match: updatedMatch });
+  } catch (error: any) {
+    console.error("Error cancelling match:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

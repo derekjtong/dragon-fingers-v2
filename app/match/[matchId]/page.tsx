@@ -98,6 +98,10 @@ function MatchPage({ params }: MatchPageProps) {
     axios.post(`/api/match/${params.matchId}/start`, { startTime: startTime.toISOString() });
   };
 
+  const handleCancelGame = async () => {
+    axios.delete(`/api/match/${params.matchId}/start`);
+  };
+
   return (
     <div>
       <div className="fixed flex h-screen flex-col items-start justify-center border p-10">
@@ -107,6 +111,14 @@ function MatchPage({ params }: MatchPageProps) {
             <>
               <div>Match is over</div>
               <div>{match ? match.id : ""}</div>
+            </>
+          ) : gameStatus === "starting" ? (
+            <>
+              <div>Match is in starting</div>
+              <div>{match ? match.id : ""}</div>
+              <Button className="m-2" onClick={handleCancelGame} variant={"outline"}>
+                Cancel
+              </Button>
             </>
           ) : gameStatus === "inprogress" ? (
             <>
@@ -124,7 +136,6 @@ function MatchPage({ params }: MatchPageProps) {
             <>
               <div> Share this code with your friends </div>
               <div>{match ? match.id : ""}</div>
-              {user?.id === match?.ownerId ? "Owner" : ""}
               {user?.id === match?.ownerId || user?.isAdmin ? (
                 <Button className="m-2" onClick={handleStartGame} disabled={match?.endTime !== null}>
                   Start Game
