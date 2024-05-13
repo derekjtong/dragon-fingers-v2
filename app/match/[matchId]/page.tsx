@@ -20,6 +20,7 @@ function MatchPage({ params }: MatchPageProps) {
   const [user, setUser] = useState<UserData>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [gameEnded, setGameEnded] = useState(false);
 
   useEffect(() => {
     const fetchMatch = async () => {
@@ -75,7 +76,12 @@ function MatchPage({ params }: MatchPageProps) {
     );
 
   const handleEndGame = async () => {
-    axios.patch(`/api/match/${params.matchId}`);
+    try {
+      await axios.patch(`/api/match/${params.matchId}`);
+      setGameEnded(true);
+    } catch (error) {
+      console.error("Failed to end game: ", error);
+    }
   };
 
   const handleStartGame = async () => {
@@ -89,18 +95,27 @@ function MatchPage({ params }: MatchPageProps) {
       <div className="fixed flex h-screen flex-col items-start justify-center border p-10">
         <div className="flex flex-col items-center">
           <div className="text-2xl">{owner?.name}&apos;s game</div>
-          <div> Share this code with your friends </div>
-          <div>{match ? match.id : ""}</div>
-          {user?.id === match?.ownerId ? "Owner" : ""}
-          {user?.isAdmin ? "Admin" : ""}
-          {user?.id === match?.ownerId || user?.isAdmin ? (
-            <Button className="m-2" onClick={handleStartGame} disabled={match?.endTime !== null}>
-              Start Game
-            </Button>
+          {gameEnded ? (
+            <>
+              <div>Match is over</div>
+              <div>{match ? match.id : ""}</div>
+            </>
           ) : (
-            ""
+            <>
+              <div> Share this code with your friends </div>
+              <div>{match ? match.id : ""}</div>
+              {user?.id === match?.ownerId ? "Owner" : ""}
+              {user?.isAdmin ? "Admin" : ""}
+              {user?.id === match?.ownerId || user?.isAdmin ? (
+                <Button className="m-2" onClick={handleStartGame} disabled={match?.endTime !== null}>
+                  Start Game
+                </Button>
+              ) : (
+                ""
+              )}
+              {user?.id === match?.ownerId || user?.isAdmin ? <Button onClick={handleEndGame}>End Game</Button> : ""}
+            </>
           )}
-          {user?.id === match?.ownerId || user?.isAdmin ? <Button onClick={handleEndGame}>End Game</Button> : ""}
         </div>
       </div>
       <div className="flex h-screen flex-grow flex-col items-center justify-center ">{match && <TypeBox match={match} text={text} />}</div>
