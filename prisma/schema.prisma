@@ -86,11 +86,13 @@ model Match {
 }
 
 model Participant {
-  id        String @id @default(auto()) @map("_id") @db.ObjectId
-  matchId   String @db.ObjectId
-  userId    String @db.ObjectId
-  charCount Int    @default(0)
-  speed     Float?
+  id        String  @id @default(auto()) @map("_id") @db.ObjectId
+  matchId   String  @db.ObjectId
+  userId    String  @db.ObjectId
+  charCount Int     @default(0)
+  completed Boolean @default(false)
+  time      Int?
+  wpm     Int?
   accuracy  Float?
 
   match Match @relation(fields: [matchId], references: [id])

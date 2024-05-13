@@ -5,7 +5,7 @@ type ExtendedParticipant = {
   matchId: string;
   userId: string;
   charCount: number;
-  speed: number | null;
+  wpm: number | null;
   accuracy: number | null;
   user: {
     id: string;
