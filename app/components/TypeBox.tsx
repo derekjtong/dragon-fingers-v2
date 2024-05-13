@@ -195,7 +195,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
           <div className="min-h-10"></div>
         )}
         {startTime === null ? (
-          <div className="h-6">Waiting for owner to start...</div>
+          <div className="mb-4 font-mono text-xl">Waiting for owner to start...</div>
         ) : countdown !== null ? (
           <div className="mb-4 font-mono text-xl">Game starting in {countdown}</div>
         ) : (
