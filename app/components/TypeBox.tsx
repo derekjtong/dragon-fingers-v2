@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Match, Participant } from "@prisma/client";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import usePusherSocket from "../hooks/usePusherProgress";
+import usePusherProgress from "../hooks/usePusherProgress";
 import useStopwatch from "../hooks/useTimer";
 
 interface TypeBoxProps {
@@ -20,7 +20,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const { participantProgress, status, startTime } = usePusherSocket(match);
+  const { participantProgress, status, startTime } = usePusherProgress(match);
   const [countdown, setCountdown] = useState<number | null>();
   const [participantInfo, setParticipantInfo] = useState<Participant>();
   const [completed, setCompleted] = useState(false);
