@@ -186,7 +186,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
       <div className={`caps-lock-indicator ${capsLock ? "text-red-500" : "text-transparent"}`}>
         {capsLock ? "CAPS LOCK IS ON" : "CAPS LOCK IS OFF"}
       </div>
-      <div className="relative min-w-96">
+      <div className="relative mx-80 min-w-96">
         {timerOn || typedText.length === text.length ? (
           <div className="min-h-10">
             <div className="mb-2 cursor-pointer font-mono ">
