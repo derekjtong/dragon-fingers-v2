@@ -38,7 +38,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
       if (participant.completed) {
         setTypedText(text);
         setCompleted(true);
-        setWpm(participant.WPM);
+        setWpm(participant.wpm);
         setTime(participant.time);
         setTimerOn(false);
       }
@@ -222,15 +222,14 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
           </div>
         )}
         {completed ? (
-          <div className="absolute">
-            <div>
-              Winner:
-              {winner?.name === "" || !match.winnerUserId ? (
-                "Waiting..."
+          <div className="absolute border">
+            <div className="flex text-2xl">
+              {winner?.name === "" && !match.winnerUserId ? (
+                <div>Waiting for winner...</div>
               ) : winner?.id === user.id || match.winnerUserId == user.id ? (
-                <div>YOU! Congratulations!</div>
+                <div>You won! Congratulations!</div>
               ) : (
-                <div>{winner?.name || match.winnerUserId}</div>
+                <div>{winner?.name || match.winnerUserId} won</div>
               )}
             </div>
             <div>
@@ -248,29 +247,31 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
         ) : (
           ""
         )}
-        {user.isAdmin ? (
-          <div className="absolute ml-72">
-            <Button onClick={() => setShowDebug(!showDebug)} size="sm" variant="outline">
-              (admin) Debug
-            </Button>
+      </div>
+      {user.isAdmin ? (
+        <div className="absolute bottom-10 right-10 m-2 flex flex-col items-end">
+          <div>
             {showDebug && (
-              <div>
+              <div className="rounded border p-2 shadow-sm">
                 <div>Countdown: {countdown}</div>
                 <div>PS.status: {gameStatus === "open" ? "open" : gameStatus === "inprogress" ? "inprogress" : "ended"}</div>
                 <div>Time Taken: {time}</div>
                 <div>WPM: {wpm}</div>
-                <div></div>
-                <div>DB Data (not live)</div>
                 <div>DB.startTime: {JSON.stringify(startTime)}</div>
                 <div>DB.endTime: {match.endTime ? JSON.stringify(match.endTime) : "null"}</div>
-                <div>DB.allowJoin: {match.allowJoin ? "allowed" : "not allowed"}</div>
+                <div>DB.allowJoin: {match.allowJoin ? "true" : "false"}</div>
               </div>
             )}
           </div>
-        ) : (
-          ""
-        )}
-      </div>
+          <div>
+            <Button onClick={() => setShowDebug(!showDebug)} size="sm" variant="outline">
+              (admin) Debug
+            </Button>
+          </div>
+        </div>
+      ) : (
+        ""
+      )}
     </div>
   );
 };
