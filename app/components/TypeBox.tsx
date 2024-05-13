@@ -26,6 +26,8 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
   const { participantProgress, startTime } = usePusherProgress({ match, setGameStatus });
   const [countdown, setCountdown] = useState<number | null>();
   const [showDebug, setShowDebug] = useState(true);
+  const [completed, setCompleted] = useState(false);
+  const [wpm, setWpm] = useState(0);
 
   useEffect(() => {
     const fetchParticipantData = async () => {
@@ -33,6 +35,8 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
       const participant = response.data;
       if (participant.completed) {
         setTypedText(text);
+        setCompleted(true);
+        setWpm(participant.WPM);
         setTime(participant.time);
         setTimerOn(false);
       }
@@ -137,10 +141,16 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
 
     if (currentText.length === text.length) {
       setTimerOn(false);
+      setCompleted(true);
+      setWpm(Math.round((typedText.length / 5) * (60000 / time)));
       handleCompleteGame();
     }
 
     axios.post(`/api/match/${match.id}`, { charCount: typedText.length });
+  };
+
+  const handleCompleteGame = async () => {
+    axios.patch(`/api/match/${match.id}/participants`, { time: time });
   };
 
   // Display progress and highlight incorrect as red
@@ -158,10 +168,6 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
         </span>
       );
     });
-  };
-
-  const handleCompleteGame = async () => {
-    axios.patch(`/api/match/${match.id}/participants`, { time: time });
   };
 
   return (
@@ -212,17 +218,29 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
             />
           </div>
         )}
+        {completed ? (
+          <div className="absolute">
+            <div>Completed!</div>
+            <div>
+              Time Taken: {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
+              {("0" + ((time / 10) % 100)).slice(-2)}
+            </div>
+            <div>WPM: {Math.round((typedText.length / 5) * (60000 / time))}</div>
+          </div>
+        ) : (
+          ""
+        )}
         {user.isAdmin ? (
-          <>
+          <div className="absolute ml-72">
             <Button onClick={() => setShowDebug(!showDebug)} size="sm" variant="outline">
               (admin) Debug
             </Button>
             {showDebug && (
-              <div className="absolute">
+              <div>
                 <div>Countdown: {countdown}</div>
                 <div>PS.status: {gameStatus === "open" ? "open" : gameStatus === "inprogress" ? "inprogress" : "ended"}</div>
                 <div>Time Taken: {time}</div>
-                <div>WPM: {Math.round((typedText.length / 5) * (60000 / time))}</div>
+                <div>WPM: {wpm}</div>
                 <div></div>
                 <div>DB Data (not live)</div>
                 <div>DB.startTime: {JSON.stringify(startTime)}</div>
@@ -230,7 +248,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
                 <div>DB.allowJoin: {match.allowJoin ? "allowed" : "not allowed"}</div>
               </div>
             )}
-          </>
+          </div>
         ) : (
           ""
         )}
