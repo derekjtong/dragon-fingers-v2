@@ -5,6 +5,7 @@ import { Match } from "@prisma/client";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import Confetti from "react-confetti";
 import usePusherProgress from "../hooks/usePusherProgress";
 import useStopwatch from "../hooks/useTimer";
 
@@ -173,6 +174,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center" onClick={handleHomeClick}>
+      {winner?.name === user.name || match.winnerUserId == user.id ? <Confetti /> : ""}
       <div className="w-96">
         {participantProgress.map((user) => (
           <div key={user.userId} className="my-4">
@@ -221,7 +223,16 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
         )}
         {completed ? (
           <div className="absolute">
-            <div>Winner: {winner?.name === "" ? "Waiting..." : winner?.name === user.name ? "YOU! Congratulations!" : winner?.name}</div>
+            <div>
+              Winner:
+              {winner?.name === "" || !match.winnerUserId ? (
+                "Waiting..."
+              ) : winner?.id === user.id || match.winnerUserId == user.id ? (
+                <div>YOU! Congratulations!</div>
+              ) : (
+                <div>{winner?.name || match.winnerUserId}</div>
+              )}
+            </div>
             <div>
               Time Taken: {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
               {("0" + ((time / 10) % 100)).slice(-2)}
