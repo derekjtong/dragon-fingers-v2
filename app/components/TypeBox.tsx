@@ -1,7 +1,6 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Match, Participant } from "@prisma/client";
+import { Match } from "@prisma/client";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import usePusherProgress from "../hooks/usePusherProgress";
@@ -22,15 +21,12 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
   const { participantProgress, status, startTime } = usePusherProgress(match);
   const [countdown, setCountdown] = useState<number | null>();
-  const [participantInfo, setParticipantInfo] = useState<Participant>();
-  const [completed, setCompleted] = useState(false);
 
   useEffect(() => {
     const fetchParticipantData = async () => {
       const response = await axios.get(`/api/match/${match.id}/me`);
       const participant = response.data;
       if (participant.completed) {
-        setCompleted(true);
         setTypedText(text);
         setTime(participant.time);
         setTimerOn(false);
@@ -219,7 +215,6 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
           <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
           <div>WPM {Math.round((typedText.length / 5) * (60000 / time))}</div>
-          <Button onClick={handleCompleteGame}>complete game</Button>
         </div>
       </div>
     </div>
