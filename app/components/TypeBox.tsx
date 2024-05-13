@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Match } from "@prisma/client";
+import { Match, Participant } from "@prisma/client";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import usePusherSocket from "../hooks/usePusherProgress";
@@ -22,6 +22,23 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
   const { participantProgress, status, startTime } = usePusherSocket(match);
   const [countdown, setCountdown] = useState<number | null>();
+  const [participantInfo, setParticipantInfo] = useState<Participant>();
+  const [completed, setCompleted] = useState(false);
+
+  useEffect(() => {
+    const fetchParticipantData = async () => {
+      const response = await axios.get(`/api/match/${match.id}/me`);
+      const participant = response.data;
+      if (participant.completed) {
+        setCompleted(true);
+        setTypedText(text);
+        setTime(participant.time);
+        setTimerOn(false);
+      }
+    };
+
+    fetchParticipantData();
+  }, [match.id, setTime, text, setTimerOn]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -119,6 +136,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
 
     if (currentText.length === text.length) {
       setTimerOn(false);
+      handleCompleteGame();
     }
 
     axios.post(`/api/match/${match.id}`, { charCount: typedText.length });
@@ -197,7 +215,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
           <div>Countdown: {countdown === null ? "null" : countdown}</div>
           <div>StartTime: {JSON.stringify(startTime)}</div>
           <div>End time (db): {match.endTime ? JSON.stringify(match.endTime) : "null"}</div>
-          <div>DB Status: {match.allowJoin ? "Open" : "Closed"}</div>
+          <div>DB Status/allow join: {match.allowJoin ? "allowed" : "not allowed"}</div>
           <div>PS Status: {status}</div>
           <div>Time Taken {time}</div>
           <div>WPM {Math.round((typedText.length / 5) * (60000 / time))}</div>
