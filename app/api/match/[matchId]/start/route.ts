@@ -1,4 +1,5 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import { inngestClient } from "@/app/libs/inngest";
 import prisma from "@/app/libs/prismadb";
 import { pusherServer } from "@/app/libs/pusher";
 import { NextResponse } from "next/server";
@@ -22,7 +23,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
 
     // Validate matchId format
     if (!matchId || !/^[0-9a-fA-F]{24}$/.test(matchId)) {
-      return new NextResponse("Match not found", { status: 404 });
+      return new NextResponse("Invalid match format", { status: 404 });
     }
 
     // Fetch the match from the database using the provided matchId
@@ -61,6 +62,23 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       data: {
         allowJoin: false,
         startTime: new Date(startTime),
+      },
+    });
+
+    // Cancel any previous
+    await inngestClient.send({
+      name: "match/schedule-end.cancel",
+      data: {
+        matchId: matchId,
+      },
+    });
+    // Trigger inngest
+    await inngestClient.send({
+      name: "match/schedule-end",
+      data: {
+        matchId: matchId,
+        seconds: 15,
+        // 5 (countdown) + game duration
       },
     });
 
