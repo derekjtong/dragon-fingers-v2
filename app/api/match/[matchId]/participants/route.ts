@@ -104,3 +104,58 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }
+
+// User completed
+export async function PATCH(request: Request, { params }: { params: IParams }) {
+  try {
+    const currentUser = await getCurrentUser();
+    const { matchId } = params;
+    const body = await request.json();
+    const { time } = body;
+
+    // Validate user
+    if (!currentUser?.id || !currentUser?.email || !currentUser?.name) {
+      return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    // Validate match
+    if (!matchId || !/^[0-9a-fA-F]{24}$/.test(matchId)) {
+      return new NextResponse("Match not found", { status: 404 });
+    }
+
+    // Find match
+    const match = await prisma.match.findUnique({
+      where: {
+        id: matchId,
+      },
+      include: {
+        text: true,
+      },
+    });
+
+    // Validate match
+    if (!match) {
+      return new NextResponse("Match not found", { status: 404 });
+    }
+
+    const wpm = (match.text.text.length / 5) * (60000 / time);
+    const updatedParticipant = await prisma.participant.update({
+      where: {
+        userId_matchId: {
+          matchId: matchId,
+          userId: currentUser.id,
+        },
+      },
+      data: {
+        completed: true,
+        time: time,
+        wpm: wpm,
+      },
+    });
+
+    return new NextResponse("Speed recorded", { status: 200 });
+  } catch (error: any) {
+    console.error("Error posting participant:", error);
+    return new NextResponse("Internal Server Error", { status: 500 });
+  }
+}
