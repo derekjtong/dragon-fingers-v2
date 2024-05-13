@@ -27,7 +27,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
   const { participantProgress, startTime, winner } = usePusherProgress({ match, setGameStatus, setTimerOn });
   const [countdown, setCountdown] = useState<number | null>();
-  const [showDebug, setShowDebug] = useState(true);
+  const [showDebug, setShowDebug] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [wpm, setWpm] = useState(0);
 
@@ -143,7 +143,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
       setIsTyping(false);
     }, 500);
 
-    if (currentText.length === text.length) {
+    if (currentText === text) {
       setTimerOn(false);
       setCompleted(true);
       setWpm(Math.round((typedText.length / 5) * (60000 / time)));
@@ -179,7 +179,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center" onClick={handleHomeClick}>
-      {winner?.name === user.name || match.winnerUserId == user.id ? <Confetti /> : ""}
+      {(winner?.id === user.id || match.winnerUserId == user.id) && gameStatus === "ended" ? <Confetti /> : ""}
       <div className="w-96">
         {participantProgress.map((user) => (
           <div key={user.userId} className="my-4">
@@ -208,7 +208,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
           <div className="mb-4 font-mono text-xl">Game starting in {countdown}</div>
         ) : (
           <div>
-            {typedText.length === text.length || gameStatus === "ended" || match.allowJoin === false ? (
+            {typedText === text || gameStatus === "ended" || match.allowJoin === false ? (
               ""
             ) : (
               <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
@@ -222,19 +222,20 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
               onKeyUp={handleKeyUp as any}
               value={typedText}
               aria-label="Type the text here"
-              disabled={typedText.length === text.length || gameStatus === "ended" || match.allowJoin === false}
+              disabled={typedText === text || gameStatus === "ended" || match.allowJoin === false}
             />
           </div>
         )}
       </div>
-      {completed ? (
+      {completed && gameStatus !== "ended" ? <div className="absolute bottom-36">Completed! Waiting for others...</div> : ""}
+      {gameStatus === "ended" ? (
         <div className="absolute bottom-10 flex">
           <div className="mx-auto flex max-w-2xl flex-col items-center justify-center rounded-lg border border-white bg-gradient-to-r from-green-400 to-blue-500 p-8 shadow-lg">
             <div className="text-4xl font-bold text-white ">
               {winner?.id === user.id || match.winnerUserId === user.id ? (
                 <div>You won! 🎉 Congratulations!</div>
               ) : (
-                <div>{winner?.name || match.winnerUserId ? `${winner?.name || match.winnerUserId} won` : "Determining winner..."}</div>
+                <div>{winner?.name || match.winnerUserId ? `${winner?.name || match.winnerUserId} won` : "No winner"}</div>
               )}
             </div>
             <div className="mt-4 text-lg font-light text-white">
@@ -267,12 +268,21 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
                 <div>DB.startTime: {JSON.stringify(startTime)}</div>
                 <div>DB.endTime: {match.endTime ? JSON.stringify(match.endTime) : "null"}</div>
                 <div>DB.allowJoin: {match.allowJoin ? "true" : "false"}</div>
+                <Button
+                  onClick={() => {
+                    setTypedText(text.slice(0, -1));
+                  }}
+                  variant="outline"
+                  disabled={gameStatus !== "inprogress"}
+                >
+                  Complete up to last char
+                </Button>
               </div>
             )}
           </div>
           <div>
             <Button onClick={() => setShowDebug(!showDebug)} size="sm" variant="outline">
-              (admin) Debug
+              Debug (Admin)
             </Button>
           </div>
         </div>
