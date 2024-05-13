@@ -130,6 +130,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       },
       include: {
         text: true,
+        participants: true,
       },
     });
 
@@ -139,6 +140,8 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
     }
 
     const wpm = (match.text.text.length / 5) * (60000 / time);
+
+    // Update participant
     const updatedParticipant = await prisma.participant.update({
       where: {
         userId_matchId: {
@@ -153,7 +156,44 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       },
     });
 
-    return new NextResponse("Speed recorded", { status: 200 });
+    // Update user stats
+    let stats = await prisma.stats.findUnique({
+      where: { userId: currentUser.id },
+    });
+
+    if (stats) {
+      const newMatchesPlayed = stats.matchesPlayed + 1;
+      const newAverageSpeed = (stats.averageSpeed * stats.matchesPlayed + wpm) / newMatchesPlayed;
+      const isBest = !stats.bestSpeed || wpm > stats.bestSpeed;
+      stats = await prisma.stats.update({
+        where: { userId: currentUser.id },
+        data: {
+          matchesPlayed: stats.matchesPlayed + 1,
+          bestSpeed: isBest ? wpm : stats.bestSpeed,
+          averageSpeed: newAverageSpeed,
+        },
+      });
+    } else {
+      stats = await prisma.stats.create({
+        data: {
+          userId: currentUser.id,
+          averageSpeed: wpm,
+          bestSpeed: wpm,
+          matchesPlayed: 1,
+          matchesWon: 0,
+        },
+      });
+    }
+
+    // Determine if current user is winner
+    const highestWpm = Math.max(...match.participants.map((p) => p.wpm || 0), wpm);
+    if (wpm >= highestWpm) {
+      await prisma.match.update({
+        where: { id: matchId },
+        data: { winnerUserId: currentUser.id },
+      });
+    }
+    return new NextResponse("Speed rand match stats recorded", { status: 200 });
   } catch (error: any) {
     console.error("Error posting participant:", error);
     return new NextResponse("Internal Server Error", { status: 500 });
