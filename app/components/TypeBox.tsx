@@ -221,35 +221,37 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
             />
           </div>
         )}
-        {completed ? (
-          <div className="absolute border">
-            <div className="flex text-2xl">
-              {winner?.name === "" && !match.winnerUserId ? (
-                <div>Waiting for winner...</div>
-              ) : winner?.id === user.id || match.winnerUserId == user.id ? (
-                <div>You won! Congratulations!</div>
+      </div>
+      {completed ? (
+        <div className="absolute bottom-10 flex">
+          <div className="mx-auto flex max-w-2xl flex-col items-center justify-center rounded-lg border border-white bg-gradient-to-r from-green-400 to-blue-500 p-8 shadow-lg">
+            <div className="text-4xl font-bold text-white ">
+              {winner?.id === user.id || match.winnerUserId === user.id ? (
+                <div>You won! 🎉 Congratulations!</div>
               ) : (
                 <div>{winner?.name || match.winnerUserId} won</div>
               )}
             </div>
-            <div>
+            <div className="mt-4 text-lg font-light text-white">
               Time Taken: {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
               {("0" + ((time / 10) % 100)).slice(-2)}
             </div>
-            <div>WPM: {Math.round((typedText.length / 5) * (60000 / time))}</div>
-            <Link href="/match/joinexisting" className="mr-2">
-              <Button variant={"default"}>Play Again</Button>
-            </Link>
-            <Link href="/profile">
-              <Button variant={"outline"}>Profile</Button>
-            </Link>
+            <div className="text-white">WPM: {Math.round((typedText.length / 5) * (60000 / time))}</div>
+            <div className="mt-4 flex space-x-4">
+              <Link href="/match/joinexisting">
+                <Button variant={"default"}>Play Again</Button>
+              </Link>
+              <Link href="/profile">
+                <Button variant={"outline"}>Profile</Button>
+              </Link>
+            </div>
           </div>
-        ) : (
-          ""
-        )}
-      </div>
+        </div>
+      ) : (
+        ""
+      )}
       {user.isAdmin ? (
-        <div className="absolute bottom-10 right-10 m-2 flex flex-col items-end">
+        <div className="fixed bottom-0 right-0 m-2 flex flex-col items-end md:bottom-5 md:right-5 lg:bottom-10 lg:right-10">
           <div>
             {showDebug && (
               <div className="rounded border p-2 shadow-sm">
