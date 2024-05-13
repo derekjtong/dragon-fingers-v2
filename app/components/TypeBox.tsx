@@ -9,9 +9,11 @@ import useStopwatch from "../hooks/useTimer";
 interface TypeBoxProps {
   match: Match;
   text: string;
+  gameStatus: GameStatus;
+  setGameStatus: (status: GameStatus) => void;
 }
 
-const TypeBox = ({ match, text }: TypeBoxProps) => {
+const TypeBox = ({ match, text, gameStatus, setGameStatus }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [typedText, setTypedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
@@ -19,7 +21,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const { participantProgress, status, startTime } = usePusherProgress(match);
+  const { participantProgress, startTime } = usePusherProgress({ match, setGameStatus });
   const [countdown, setCountdown] = useState<number | null>();
 
   useEffect(() => {
@@ -52,7 +54,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
             interval = setInterval(updateCountdown, 1000);
           }
         } else {
-          if (status !== "closed" && match.endTime === null) {
+          if (gameStatus !== "ended" && match.endTime === null) {
             setTimerOn(true);
           }
           setCountdown(null);
@@ -73,7 +75,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
         clearInterval(interval);
       }
     };
-  }, [startTime, setTimerOn, match.endTime, status]);
+  }, [startTime, setTimerOn, match.endTime, gameStatus]);
 
   useEffect(() => {
     if (inputRef.current) {
@@ -189,7 +191,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
           <div className="mb-4 font-mono text-xl">Game starting in {countdown}</div>
         ) : (
           <div>
-            {typedText.length === text.length || status === "closed" || match.allowJoin === false ? (
+            {typedText.length === text.length || gameStatus === "ended" || match.allowJoin === false ? (
               ""
             ) : (
               <div ref={cursorRef} className={`absolute left-0 top-10 h-6 w-px bg-black ${!isTyping ? "animate-blink" : ""}`} />
@@ -203,7 +205,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
               onKeyUp={handleKeyUp as any}
               value={typedText}
               aria-label="Type the text here"
-              disabled={typedText.length === text.length || status === "closed" || match.allowJoin === false}
+              disabled={typedText.length === text.length || gameStatus === "ended" || match.allowJoin === false}
             />
           </div>
         )}
@@ -212,7 +214,7 @@ const TypeBox = ({ match, text }: TypeBoxProps) => {
           <div>StartTime: {JSON.stringify(startTime)}</div>
           <div>End time (db): {match.endTime ? JSON.stringify(match.endTime) : "null"}</div>
           <div>DB Status/allow join: {match.allowJoin ? "allowed" : "not allowed"}</div>
-          <div>PS Status: {status}</div>
+          <div>PS Status/overall: {gameStatus === "open" ? "open" : gameStatus === "inprogress" ? "inprogress" : "ended"}</div>
           <div>Time Taken {time}</div>
           <div>WPM {Math.round((typedText.length / 5) * (60000 / time))}</div>
         </div>

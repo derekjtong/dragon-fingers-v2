@@ -16,7 +16,7 @@ type ExtendedParticipant = {
   };
 };
 
-type GameStatus = "open" | "progress" | "closed";
+type GameStatus = "open" | "inprogress" | "ended";
 
 // Progress message used in pusher channels
 // api/match/[matchId]

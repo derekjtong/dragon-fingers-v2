@@ -54,6 +54,15 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     };
     await pusherServer.trigger(matchId, "startTime", startTimeMessage);
 
+    // Update status to progress
+    const update: MatchUpdateMessage = {
+      name: "admin",
+      userId: "whatever",
+      charCount: -1,
+      status: "inprogress",
+    };
+    await pusherServer.trigger(matchId, "progress-update", update);
+
     // Update record
     const updatedMatch = await prisma.match.update({
       where: {

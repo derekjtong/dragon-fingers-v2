@@ -20,7 +20,7 @@ function MatchPage({ params }: MatchPageProps) {
   const [user, setUser] = useState<UserData>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [gameEnded, setGameEnded] = useState(false);
+  const [gameStatus, setGameStatus] = useState<GameStatus>("open");
 
   useEffect(() => {
     const fetchMatch = async () => {
@@ -41,6 +41,14 @@ function MatchPage({ params }: MatchPageProps) {
 
           const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
           setText(textResponse.data.text);
+
+          if (matchResponse.data.startTime !== null) {
+            if (matchResponse.data.endTime !== null) {
+              setGameStatus("ended");
+            } else {
+              setGameStatus("inprogress");
+            }
+          }
         } else {
           throw new Error("Match not found");
         }
@@ -78,7 +86,7 @@ function MatchPage({ params }: MatchPageProps) {
   const handleEndGame = async () => {
     try {
       await axios.patch(`/api/match/${params.matchId}`);
-      setGameEnded(true);
+      setGameStatus("ended");
     } catch (error) {
       console.error("Failed to end game: ", error);
     }
@@ -95,9 +103,14 @@ function MatchPage({ params }: MatchPageProps) {
       <div className="fixed flex h-screen flex-col items-start justify-center border p-10">
         <div className="flex flex-col items-center">
           <div className="text-2xl">{owner?.name}&apos;s game</div>
-          {gameEnded ? (
+          {gameStatus === "ended" ? (
             <>
               <div>Match is over</div>
+              <div>{match ? match.id : ""}</div>
+            </>
+          ) : gameStatus === "inprogress" ? (
+            <>
+              <div>Match is in progress</div>
               <div>{match ? match.id : ""}</div>
             </>
           ) : (
@@ -118,7 +131,9 @@ function MatchPage({ params }: MatchPageProps) {
           )}
         </div>
       </div>
-      <div className="flex h-screen flex-grow flex-col items-center justify-center ">{match && <TypeBox match={match} text={text} />}</div>
+      <div className="flex h-screen flex-grow flex-col items-center justify-center ">
+        {match && <TypeBox match={match} text={text} gameStatus={gameStatus} setGameStatus={setGameStatus} />}
+      </div>
     </div>
   );
 }

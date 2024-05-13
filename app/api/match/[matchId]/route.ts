@@ -66,7 +66,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       name: currentUser.name,
       userId: currentUser.id,
       charCount,
-      status: "progress",
+      status: "inprogress",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 
@@ -120,7 +120,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       name: "admin",
       userId: "whatever",
       charCount: 0,
-      status: "closed",
+      status: "ended",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 

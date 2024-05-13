@@ -37,7 +37,7 @@ export const triggerGameEnd = inngestClient.createFunction(
       name: "admin",
       userId: "whatever",
       charCount: 0,
-      status: "closed",
+      status: "ended",
     };
 
     await step.sleep("wait-a-moment", `${seconds}s`);

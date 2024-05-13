@@ -3,9 +3,13 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { pusherClient } from "../libs/pusher";
 
-function usePusherProgress(match: Match) {
+interface PusherProgressProps {
+  match: Match;
+  setGameStatus: (status: GameStatus) => void;
+}
+
+function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
   const [participantProgress, setParticipantProgress] = useState<MatchUpdateMessage[]>([]);
-  const [status, setStatus] = useState<GameStatus>(match.allowJoin ? "open" : !match.endTime ? "progress" : "closed");
   const [startTime, setStartTime] = useState<Date | null>(match.startTime);
 
   // Fetch initial participants
@@ -34,13 +38,13 @@ function usePusherProgress(match: Match) {
       pusherClient.subscribe(match.id);
       const progressHandler = (update: MatchUpdateMessage) => {
         if (update.status == "open") {
-          setStatus("open");
+          setGameStatus("open");
         }
-        if (update.status == "progress") {
-          setStatus("progress");
+        if (update.status == "inprogress") {
+          setGameStatus("inprogress");
         }
-        if (update.status == "closed") {
-          setStatus("closed");
+        if (update.status == "ended") {
+          setGameStatus("ended");
         }
         if (update.name === "admin") {
           return;
@@ -63,9 +67,9 @@ function usePusherProgress(match: Match) {
       };
     };
     subscribeToProgress();
-  }, [match.id, startTime]);
+  }, [match.id, startTime, setGameStatus]);
 
-  return { participantProgress, status, startTime };
+  return { participantProgress, startTime };
 }
 
 export default usePusherProgress;
