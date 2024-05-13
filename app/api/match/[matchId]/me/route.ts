@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: { params: IParams }) {
 
     // Validate match
     if (!matchId || !/^[0-9a-fA-F]{24}$/.test(matchId)) {
-      return new NextResponse("Match not found", { status: 404 });
+      return new NextResponse("Invalid match format", { status: 404 });
     }
 
     // Find match
