@@ -158,6 +158,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
       inputRef.current.blur();
     }
     axios.patch(`/api/match/${match.id}/participants`, { time: time });
+    if (participantProgress.length === 1) setGameStatus("ended");
   };
 
   // Display progress and highlight incorrect as red
