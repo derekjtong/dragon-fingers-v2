@@ -141,7 +141,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       return new NextResponse("Match not found", { status: 404 });
     }
 
-    const wpm = (match.text.text.length / 5) * (60000 / time);
+    const wpm = (match.text.body.length / 5) * (60000 / time);
 
     // Update participant
     const updatedParticipant = await prisma.participant.update({

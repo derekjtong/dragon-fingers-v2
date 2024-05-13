@@ -40,7 +40,7 @@ function MatchPage({ params }: MatchPageProps) {
           }
 
           const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
-          setText(textResponse.data.text);
+          setText(textResponse.data.body);
 
           if (matchResponse.data.startTime !== null) {
             if (matchResponse.data.endTime !== null) {

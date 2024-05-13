@@ -61,7 +61,7 @@ model Stats {
 
 model Text {
   id     String @id @default(auto()) @map("_id") @db.ObjectId
-  text   String
+  body   String
   source String
 
   matches Match[] @relation("TextMatches")
