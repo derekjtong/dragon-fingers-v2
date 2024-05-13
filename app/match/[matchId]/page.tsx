@@ -1,7 +1,7 @@
 "use client";
 import TypeBox from "@/app/components/TypeBox";
 import { Button } from "@/components/ui/button";
-import { Match } from "@prisma/client";
+import { Match, Text } from "@prisma/client";
 import axios from "axios";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ type MatchPageProps = {
 function MatchPage({ params }: MatchPageProps) {
   const [match, setMatch] = useState<Match>();
   const [owner, setOwner] = useState<UserData>();
-  const [text, setText] = useState("");
+  const [text, setText] = useState<Text>();
   const [user, setUser] = useState<UserData>();
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +40,7 @@ function MatchPage({ params }: MatchPageProps) {
           }
 
           const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
-          setText(textResponse.data.body);
+          setText(textResponse.data);
 
           // not null, match started
           if (matchResponse.data.startTime !== null) {
@@ -151,7 +151,16 @@ function MatchPage({ params }: MatchPageProps) {
         </div>
       </div>
       <div className="flex h-screen flex-grow flex-col items-center justify-center ">
-        {match && <TypeBox match={match} text={text} gameStatus={gameStatus} setGameStatus={setGameStatus} user={user!} />}
+        {match && (
+          <TypeBox
+            match={match}
+            text={text!.body}
+            source={text!.source}
+            gameStatus={gameStatus}
+            setGameStatus={setGameStatus}
+            user={user!}
+          />
+        )}
       </div>
     </div>
   );

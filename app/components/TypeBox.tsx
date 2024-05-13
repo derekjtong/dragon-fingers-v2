@@ -12,12 +12,13 @@ import useStopwatch from "../hooks/useTimer";
 interface TypeBoxProps {
   match: Match;
   text: string;
+  source: string;
   gameStatus: GameStatus;
   setGameStatus: (status: GameStatus) => void;
   user: UserData;
 }
 
-const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps) => {
+const TypeBox = ({ match, text, source, gameStatus, setGameStatus, user }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [typedText, setTypedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
@@ -239,7 +240,8 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
                 <div>{winner?.name || match.winnerUserId ? `${winner?.name || match.winnerUserId} won` : "No winner"}</div>
               )}
             </div>
-            <div className="mt-4 text-lg font-light text-white">
+            <div className="mt-4 text-white">{source}</div>
+            <div className="text-lg font-light text-white">
               Time Taken: {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
               {("0" + ((time / 10) % 100)).slice(-2)}
             </div>
