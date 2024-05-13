@@ -221,7 +221,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
         )}
         {completed ? (
           <div className="absolute">
-            <div>Winner: {winner?.name === "" ? "Waiting..." : winner?.name}</div>
+            <div>Winner: {winner?.name === "" ? "Waiting..." : winner?.name === user.name ? "YOU! Congratulations!" : winner?.name}</div>
             <div>
               Time Taken: {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
               {("0" + ((time / 10) % 100)).slice(-2)}
