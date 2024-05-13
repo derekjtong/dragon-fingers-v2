@@ -8,9 +8,12 @@ interface PusherProgressProps {
   setGameStatus: (status: GameStatus) => void;
 }
 
+type Winner = { id: string; name: string };
+
 function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
   const [participantProgress, setParticipantProgress] = useState<MatchUpdateMessage[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(match.startTime);
+  const [winner, setWinner] = useState<Winner>();
 
   // Fetch initial participants
   useEffect(() => {
@@ -49,6 +52,9 @@ function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
         if (update.status == "ended") {
           setGameStatus("ended");
         }
+        if (update.winnerId !== "") {
+          setWinner({ id: update.winnerId, name: update.winnerName });
+        }
         if (update.name === "admin") {
           return;
         }
@@ -70,9 +76,9 @@ function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
       };
     };
     subscribeToProgress();
-  }, [match.id, startTime, setGameStatus]);
+  }, [match.id, startTime, setGameStatus, winner]);
 
-  return { participantProgress, startTime };
+  return { participantProgress, startTime, winner };
 }
 
 export default usePusherProgress;

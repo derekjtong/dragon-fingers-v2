@@ -74,6 +74,8 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       userId: currentUser.id,
       charCount: 0,
       status: "open",
+      winnerId: "",
+      winnerName: "",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 
@@ -124,7 +126,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
     }
 
     // Find match
-    const match = await prisma.match.findUnique({
+    let match = await prisma.match.findUnique({
       where: {
         id: matchId,
       },
@@ -192,7 +194,17 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
         where: { id: matchId },
         data: { winnerUserId: currentUser.id },
       });
+      const update: MatchUpdateMessage = {
+        name: "admin",
+        userId: "",
+        charCount: 0,
+        status: "inprogress",
+        winnerId: currentUser.id || "",
+        winnerName: currentUser.name || "",
+      };
+      await pusherServer.trigger(matchId, "progress-update", update);
     }
+
     return new NextResponse("Speed rand match stats recorded", { status: 200 });
   } catch (error: any) {
     console.error("Error posting participant:", error);

@@ -60,6 +60,8 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       userId: "whatever",
       charCount: -1,
       status: "starting",
+      winnerId: "",
+      winnerName: "",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 
@@ -183,6 +185,8 @@ export async function DELETE(request: Request, { params }: { params: IParams }) 
       userId: "whatever",
       charCount: -1,
       status: "open",
+      winnerId: "",
+      winnerName: "",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 

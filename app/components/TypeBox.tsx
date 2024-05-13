@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Match } from "@prisma/client";
 import axios from "axios";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import usePusherProgress from "../hooks/usePusherProgress";
 import useStopwatch from "../hooks/useTimer";
@@ -23,7 +24,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const { participantProgress, startTime } = usePusherProgress({ match, setGameStatus });
+  const { participantProgress, startTime, winner } = usePusherProgress({ match, setGameStatus });
   const [countdown, setCountdown] = useState<number | null>();
   const [showDebug, setShowDebug] = useState(true);
   const [completed, setCompleted] = useState(false);
@@ -220,12 +221,18 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
         )}
         {completed ? (
           <div className="absolute">
-            <div>Completed!</div>
+            <div>Winner: {winner?.name === "" ? "Waiting..." : winner?.name}</div>
             <div>
               Time Taken: {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
               {("0" + ((time / 10) % 100)).slice(-2)}
             </div>
             <div>WPM: {Math.round((typedText.length / 5) * (60000 / time))}</div>
+            <Link href="/match/joinexisting" className="mr-2">
+              <Button variant={"default"}>Play Again</Button>
+            </Link>
+            <Link href="/profile">
+              <Button variant={"outline"}>Profile</Button>
+            </Link>
           </div>
         ) : (
           ""

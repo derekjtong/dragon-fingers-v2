@@ -26,6 +26,8 @@ type MatchUpdateMessage = {
   userId: string;
   charCount: number;
   status: GameStatus;
+  winnerId: string;
+  winnerName: string;
 };
 
 type MatchStartMessage = {

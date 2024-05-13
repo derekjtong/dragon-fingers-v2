@@ -67,6 +67,8 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       userId: currentUser.id,
       charCount,
       status: "inprogress",
+      winnerId: "",
+      winnerName: "",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 
@@ -108,6 +110,14 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       where: {
         id: matchId,
       },
+      include: {
+        winner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
     // Check if match exists
@@ -121,6 +131,8 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
       userId: "whatever",
       charCount: 0,
       status: "ended",
+      winnerId: match.winnerUserId || "",
+      winnerName: match.winner?.name || "",
     };
     await pusherServer.trigger(matchId, "progress-update", update);
 

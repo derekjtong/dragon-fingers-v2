@@ -27,6 +27,14 @@ export const triggerGameEnd = inngestClient.createFunction(
       where: {
         id: matchId,
       },
+      include: {
+        winner: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
 
     if (!match) {
@@ -38,6 +46,8 @@ export const triggerGameEnd = inngestClient.createFunction(
       userId: "whatever",
       charCount: 0,
       status: "ended",
+      winnerId: match.winner?.id || "",
+      winnerName: match.winner?.name || "",
     };
 
     await step.sleep("wait-a-moment", `${seconds}s`);
@@ -96,6 +106,8 @@ export const triggerGameStart = inngestClient.createFunction(
       userId: "whatever",
       charCount: -1,
       status: "inprogress",
+      winnerId: "",
+      winnerName: "",
     };
 
     await step.sleep("wait-a-moment", "5s");
