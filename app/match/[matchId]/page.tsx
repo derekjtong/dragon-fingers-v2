@@ -137,7 +137,7 @@ function MatchPage({ params }: MatchPageProps) {
         </div>
       </div>
       <div className="flex h-screen flex-grow flex-col items-center justify-center ">
-        {match && <TypeBox match={match} text={text} gameStatus={gameStatus} setGameStatus={setGameStatus} />}
+        {match && <TypeBox match={match} text={text} gameStatus={gameStatus} setGameStatus={setGameStatus} user={user!} />}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Match } from "@prisma/client";
 import axios from "axios";
@@ -11,9 +12,10 @@ interface TypeBoxProps {
   text: string;
   gameStatus: GameStatus;
   setGameStatus: (status: GameStatus) => void;
+  user: UserData;
 }
 
-const TypeBox = ({ match, text, gameStatus, setGameStatus }: TypeBoxProps) => {
+const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [typedText, setTypedText] = useState<string>("");
   const [isTyping, setIsTyping] = useState(false);
@@ -23,6 +25,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus }: TypeBoxProps) => {
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
   const { participantProgress, startTime } = usePusherProgress({ match, setGameStatus });
   const [countdown, setCountdown] = useState<number | null>();
+  const [showDebug, setShowDebug] = useState(true);
 
   useEffect(() => {
     const fetchParticipantData = async () => {
@@ -36,7 +39,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus }: TypeBoxProps) => {
     };
 
     fetchParticipantData();
-  }, [match.id, setTime, text, setTimerOn]);
+  }, [match, setTime, text, setTimerOn]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -174,7 +177,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus }: TypeBoxProps) => {
       <div className={`caps-lock-indicator ${capsLock ? "text-red-500" : "text-transparent"}`}>
         {capsLock ? "CAPS LOCK IS ON" : "CAPS LOCK IS OFF"}
       </div>
-      <div className="relative">
+      <div className="relative min-w-96">
         {timerOn || typedText.length === text.length ? (
           <div className="min-h-10">
             <div className="mb-2 cursor-pointer font-mono ">
@@ -209,15 +212,28 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus }: TypeBoxProps) => {
             />
           </div>
         )}
-        <div>
-          <div>Countdown: {countdown === null ? "null" : countdown}</div>
-          <div>StartTime: {JSON.stringify(startTime)}</div>
-          <div>End time (db): {match.endTime ? JSON.stringify(match.endTime) : "null"}</div>
-          <div>DB Status/allow join: {match.allowJoin ? "allowed" : "not allowed"}</div>
-          <div>PS Status/overall: {gameStatus === "open" ? "open" : gameStatus === "inprogress" ? "inprogress" : "ended"}</div>
-          <div>Time Taken {time}</div>
-          <div>WPM {Math.round((typedText.length / 5) * (60000 / time))}</div>
-        </div>
+        {user.isAdmin ? (
+          <>
+            <Button onClick={() => setShowDebug(!showDebug)} size="sm" variant="outline">
+              (admin) Debug
+            </Button>
+            {showDebug && (
+              <div className="absolute">
+                <div>Countdown: {countdown}</div>
+                <div>PS.status: {gameStatus === "open" ? "open" : gameStatus === "inprogress" ? "inprogress" : "ended"}</div>
+                <div>Time Taken: {time}</div>
+                <div>WPM: {Math.round((typedText.length / 5) * (60000 / time))}</div>
+                <div></div>
+                <div>DB Data (not live)</div>
+                <div>DB.startTime: {JSON.stringify(startTime)}</div>
+                <div>DB.endTime: {match.endTime ? JSON.stringify(match.endTime) : "null"}</div>
+                <div>DB.allowJoin: {match.allowJoin ? "allowed" : "not allowed"}</div>
+              </div>
+            )}
+          </>
+        ) : (
+          ""
+        )}
       </div>
     </div>
   );
