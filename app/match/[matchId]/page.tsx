@@ -112,13 +112,19 @@ function MatchPage({ params }: MatchPageProps) {
             <>
               <div>Match is in progress</div>
               <div>{match ? match.id : ""}</div>
+              {user?.isAdmin ? (
+                <Button onClick={handleEndGame} variant="destructive">
+                  ADMIN: end game
+                </Button>
+              ) : (
+                ""
+              )}
             </>
           ) : (
             <>
               <div> Share this code with your friends </div>
               <div>{match ? match.id : ""}</div>
               {user?.id === match?.ownerId ? "Owner" : ""}
-              {user?.isAdmin ? "Admin" : ""}
               {user?.id === match?.ownerId || user?.isAdmin ? (
                 <Button className="m-2" onClick={handleStartGame} disabled={match?.endTime !== null}>
                   Start Game
@@ -126,7 +132,6 @@ function MatchPage({ params }: MatchPageProps) {
               ) : (
                 ""
               )}
-              {user?.id === match?.ownerId || user?.isAdmin ? <Button onClick={handleEndGame}>End Game</Button> : ""}
             </>
           )}
         </div>
