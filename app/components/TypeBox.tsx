@@ -25,7 +25,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const { time, timerOn, setTimerOn, setTime } = useStopwatch();
-  const { participantProgress, startTime, winner } = usePusherProgress({ match, setGameStatus });
+  const { participantProgress, startTime, winner } = usePusherProgress({ match, setGameStatus, setTimerOn });
   const [countdown, setCountdown] = useState<number | null>();
   const [showDebug, setShowDebug] = useState(true);
   const [completed, setCompleted] = useState(false);
@@ -94,8 +94,10 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
 
   // Focus on the input when user clicks on page
   const handleHomeClick = () => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (!completed) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
   };
 
@@ -152,6 +154,9 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
   };
 
   const handleCompleteGame = async () => {
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
     axios.patch(`/api/match/${match.id}/participants`, { time: time });
   };
 
@@ -187,15 +192,15 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
         {capsLock ? "CAPS LOCK IS ON" : "CAPS LOCK IS OFF"}
       </div>
       <div className="relative mx-80 min-w-96">
-        {timerOn || typedText.length === text.length ? (
-          <div className="min-h-10">
+        {gameStatus !== "open" && gameStatus != "starting" ? (
+          <div className="h-10">
             <div className="mb-2 cursor-pointer font-mono ">
               {("0" + Math.floor((time / 60000) % 60)).slice(-2)}:{("0" + Math.floor((time / 1000) % 60)).slice(-2)}:
               {("0" + ((time / 10) % 100)).slice(-2)}
             </div>
           </div>
         ) : (
-          <div className="min-h-10"></div>
+          <div className="h-10"></div>
         )}
         {startTime === null ? (
           <div className="mb-4 font-mono text-xl">Waiting for owner to start...</div>
@@ -229,7 +234,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
               {winner?.id === user.id || match.winnerUserId === user.id ? (
                 <div>You won! 🎉 Congratulations!</div>
               ) : (
-                <div>{winner?.name || match.winnerUserId} won</div>
+                <div>{winner?.name || match.winnerUserId ? `${winner?.name || match.winnerUserId} won` : "Determining winner..."}</div>
               )}
             </div>
             <div className="mt-4 text-lg font-light text-white">
@@ -256,7 +261,7 @@ const TypeBox = ({ match, text, gameStatus, setGameStatus, user }: TypeBoxProps)
             {showDebug && (
               <div className="rounded border p-2 shadow-sm">
                 <div>Countdown: {countdown}</div>
-                <div>PS.status: {gameStatus === "open" ? "open" : gameStatus === "inprogress" ? "inprogress" : "ended"}</div>
+                <div>PS.status: {gameStatus}</div>
                 <div>Time Taken: {time}</div>
                 <div>WPM: {wpm}</div>
                 <div>DB.startTime: {JSON.stringify(startTime)}</div>

@@ -61,12 +61,25 @@ export async function POST(request: Request, { params }: { params: IParams }) {
     if (!currentUser || !currentUser.id || !currentUser.email || !currentUser.name) {
       return new NextResponse("Unauthorized", { status: 401 });
     }
+    const match = await prisma.match.findUnique({
+      where: {
+        id: matchId,
+      },
+    });
+    if (!match) {
+      return new NextResponse("No match found with the given code", { status: 404 });
+    }
+
+    // Match is over, do not send anything
+    if (match.endTime !== null) {
+      return new NextResponse("Already ended", { status: 208 });
+    }
 
     const update: MatchUpdateMessage = {
       name: currentUser.name,
       userId: currentUser.id,
       charCount,
-      status: "inprogress",
+      status: "",
       winnerId: "",
       winnerName: "",
     };

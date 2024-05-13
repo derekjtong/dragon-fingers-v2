@@ -198,7 +198,7 @@ export async function PATCH(request: Request, { params }: { params: IParams }) {
         name: "admin",
         userId: "",
         charCount: 0,
-        status: "inprogress",
+        status: "",
         winnerId: currentUser.id || "",
         winnerName: currentUser.name || "",
       };

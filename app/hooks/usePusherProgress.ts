@@ -6,11 +6,12 @@ import { pusherClient } from "../libs/pusher";
 interface PusherProgressProps {
   match: Match;
   setGameStatus: (status: GameStatus) => void;
+  setTimerOn: (status: boolean) => void;
 }
 
 type Winner = { id: string; name: string };
 
-function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
+function usePusherProgress({ match, setGameStatus, setTimerOn }: PusherProgressProps) {
   const [participantProgress, setParticipantProgress] = useState<MatchUpdateMessage[]>([]);
   const [startTime, setStartTime] = useState<Date | null>(match.startTime);
   const [winner, setWinner] = useState<Winner>();
@@ -51,6 +52,7 @@ function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
         }
         if (update.status == "ended") {
           setGameStatus("ended");
+          setTimerOn(false);
         }
         if (update.winnerId !== "") {
           setWinner({ id: update.winnerId, name: update.winnerName });
@@ -76,7 +78,7 @@ function usePusherProgress({ match, setGameStatus }: PusherProgressProps) {
       };
     };
     subscribeToProgress();
-  }, [match.id, startTime, setGameStatus, winner]);
+  }, [match.id, startTime, setGameStatus, winner, setTimerOn]);
 
   return { participantProgress, startTime, winner };
 }

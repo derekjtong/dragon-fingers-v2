@@ -42,11 +42,14 @@ function MatchPage({ params }: MatchPageProps) {
           const textResponse = await axios.get(`/api/text/${matchResponse.data.textId}`);
           setText(textResponse.data.body);
 
+          // not null, match started
           if (matchResponse.data.startTime !== null) {
-            if (matchResponse.data.endTime !== null) {
-              setGameStatus("ended");
-            } else {
+            if (matchResponse.data.endTime === null) {
+              // null, match in progress
               setGameStatus("inprogress");
+            } else {
+              // not null, end already done
+              setGameStatus("ended");
             }
           }
         } else {

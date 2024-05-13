@@ -103,7 +103,7 @@ export async function POST(request: Request, { params }: { params: IParams }) {
       name: "match/schedule-end",
       data: {
         matchId: matchId,
-        seconds: 15,
+        seconds: 5 + 10,
         // 5 (countdown) + game duration
       },
     });
