@@ -63,23 +63,27 @@ function JoinPage() {
 
   return (
     <div className="flex w-screen">
-      <div className="flex h-screen w-1/2 flex-col items-center justify-evenly border text-2xl">
-        <div className="text-4xl">Join a game</div>
+      <div className="flex h-screen w-1/2 flex-col items-center justify-center text-2xl">
+        <div className="mb-7 text-4xl">Join a game</div>
         <form onSubmit={handleSubmit} className="flex flex-col">
-          <input type="text" className="border" placeholder="Paste your code here" value={code} onChange={(e) => setCode(e.target.value)} />
-          <button type="submit" className="border p-3 hover:bg-gray-300">
-            Join
-          </button>
+          <input
+            type="text"
+            className="mb-3 min-w-96 border p-4"
+            placeholder="Paste your code here"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+          />
+          <Button type="submit">Join</Button>
         </form>
         <div className="text-red-500">{error}</div>
       </div>
-      <div className="flex h-screen w-1/2 flex-col items-center justify-evenly border text-2xl">
+      <div className="flex h-screen w-1/2 flex-col items-center justify-evenly  text-2xl">
         <div className="flex flex-col items-center">
-          <div className="text-4xl">Active Match List</div>
+          <div className="mb-7 text-4xl">Active Match List</div>
           <div>
             {matches.map((match) => (
               <div className="flex items-center justify-center" key={match.id}>
-                <div>{match.ownerId}</div>
+                <div>{match.id}</div>
                 <Link href={`/match/${match.id}`} className="ml-2">
                   <Button>
                     Join <FaArrowRight />
