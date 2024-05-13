@@ -1,7 +1,9 @@
 import getAllMatches from "@/app/actions/getAllMatches";
-import getTexts from "@/app/actions/getAllTexts";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import getProgrammingJoke from "@/app/actions/getProgrammingJokeId";
+import getTexts from "@/app/actions/getTexts";
 import prisma from "@/app/libs/prismadb";
+import { Text } from "@prisma/client";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -27,6 +29,9 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const body = await request.json();
+    const textOption = body.textOption || "random";
+
     // Attempt to retrieve current user from NextAuth
     const currentUser = await getCurrentUser();
 
@@ -35,15 +40,21 @@ export async function POST(request: Request) {
       throw new Error("User must be logged in");
     }
 
-    // Select a random text
-    const texts = await getTexts();
-    const randomText = texts[Math.floor(Math.random() * texts.length)];
+    let textid;
+
+    if (textOption === "programmingjoke") {
+      const programmingJoke: Text = await getProgrammingJoke();
+      textid = programmingJoke.id;
+    } else {
+      const allTexts = await getTexts();
+      textid = allTexts[Math.floor(Math.random() * allTexts.length)].id;
+    }
 
     // Create a new match
     const newMatch = await prisma.match.create({
       data: {
         ownerId: currentUser.id,
-        textId: randomText.id,
+        textId: textid,
         allowJoin: true,
         participants: {
           create: [

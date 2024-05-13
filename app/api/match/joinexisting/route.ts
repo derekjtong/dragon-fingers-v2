@@ -1,5 +1,5 @@
-import getTexts from "@/app/actions/getAllTexts";
 import getCurrentUser from "@/app/actions/getCurrentUser";
+import getTexts from "@/app/actions/getTexts";
 import prisma from "@/app/libs/prismadb";
 import { NextResponse } from "next/server";
 
