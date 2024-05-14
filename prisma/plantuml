@@ -1,0 +1,81 @@
+@startuml
+entity "User" {
+  + id : String [PK]
+  --
+  name : String
+  email : String [Unique]
+  emailVerified : DateTime
+  image : String
+  hashedPassword : String
+  createdAt : DateTime
+  updatedAt : DateTime
+  isAdmin : Boolean
+  isDeleted : Boolean
+}
+
+entity "Account" {
+  + id : String [PK]
+  --
+  userId : String [FK]
+  type : String
+  provider : String
+  providerAccountId : String
+  refresh_token : String
+  access_token : String
+  expires_at : Int
+  token_type : String
+  scope : String
+  id_token : String
+  session_state : String
+}
+
+entity "Stats" {
+  + id : String [PK]
+  --
+  userId : String [FK, Unique]
+  averageSpeed : Float
+  bestSpeed : Float
+  matchesPlayed : Int
+  matchesWon : Int
+}
+
+entity "Text" {
+  + id : String [PK]
+  --
+  body : String
+  source : String
+}
+
+entity "Match" {
+  + id : String [PK]
+  --
+  ownerId : String [FK]
+  textId : String [FK]
+  allowJoin : Boolean
+  createdAt : DateTime
+  startTime : DateTime
+  endTime : DateTime
+  winnerUserId : String [FK]
+}
+
+entity "Participant" {
+  + id : String [PK]
+  --
+  matchId : String [FK]
+  userId : String [FK]
+  charCount : Int
+  completed : Boolean
+  time : Int
+  wpm : Int
+  accuracy : Float
+}
+
+User "1" *-- "0..n" Account : "has"
+User "1" *-- "0..1" Stats : "has"
+User "1" *-- "0..n" Match : "owns"
+User "1" *-- "0..n" Match : "wins"
+User "1" *-- "0..n" Participant : "participates"
+
+Match "1" *-- "0..n" Participant
+Match "1" -- "1" Text
+@enduml
