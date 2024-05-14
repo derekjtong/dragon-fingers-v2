@@ -21,7 +21,7 @@ function ProfilePage() {
 
     async function fetchUserData() {
       try {
-        const response = await axios.get("/api/user");
+        const response = await axios.get("/api/user/self");
         setUserData(response.data);
         setIsLoading(false);
       } catch (error) {
@@ -36,7 +36,7 @@ function ProfilePage() {
     const confirmed = window.confirm("Are you sure you want to delete your account?");
     if (confirmed) {
       try {
-        await axios.delete("/api/user");
+        await axios.delete("/api/user/self");
         router.push("/");
       } catch (error) {
         alert("Failed to delete the account. Try again.");

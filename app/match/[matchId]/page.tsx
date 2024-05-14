@@ -56,7 +56,7 @@ function MatchPage({ params }: MatchPageProps) {
           throw new Error("Match not found");
         }
 
-        const userResponse = await axios.get("/api/user");
+        const userResponse = await axios.get("/api/user/self");
         setUser(userResponse.data);
       } catch (err: any) {
         console.log(err.response.data);
