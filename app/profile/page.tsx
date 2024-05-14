@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PuffLoader } from "react-spinners";
@@ -11,70 +10,116 @@ function ProfilePage() {
   const [userData, setUserData] = useState<UserData>();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
-  const session = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUserData = async () => {
+    if (status === "unauthenticated") {
+      router.push("/");
+      return;
+    }
+
+    async function fetchUserData() {
       try {
         const response = await axios.get("/api/user");
         setUserData(response.data);
         setIsLoading(false);
-      } catch (error: any) {
-        setError("Error: " + error.response.data);
+      } catch (error) {
+        setError("Unable to load user data. Please try again.");
         setIsLoading(false);
       }
-    };
+    }
     fetchUserData();
-  }, []);
+  }, [status, router]);
 
-  if (isLoading)
+  const handleDelete = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete your account?");
+    if (confirmed) {
+      try {
+        await axios.delete("/api/user");
+        router.push("/");
+      } catch (error) {
+        alert("Failed to delete the account. Try again.");
+      }
+    }
+  };
+
+  if (isLoading) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
+      <div className="flex h-screen items-center justify-center">
         <PuffLoader />
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
-      <div className="flex h-screen flex-col items-center justify-center">
+      <div className="flex h-screen items-center justify-center">
         <div className="p-3 text-3xl">{error}</div>
-        <Link href="/">
-          <Button variant={"destructive"}>Return to home</Button>
-        </Link>
+        <Button onClick={() => window.location.reload()} variant="default">
+          Retry
+        </Button>
       </div>
     );
+  }
 
-  if (session.status === "unauthenticated") router.push("/");
-
-  const handleDelete = async () => {
-    await axios.delete("/api/user");
-  };
+  if (!userData) {
+    router.push("/");
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="p-3 text-3xl">{error}</div>
+        No data
+      </div>
+    );
+  }
 
   return (
-    <>
-      {session && (
-        <div className="flex h-screen flex-col items-center justify-center">
-          <div className="mb-8 text-3xl">{session.data?.user?.name}&apos;s profile</div>
-          <div className="text-xl">
-            <div>Average WPM: 100</div>
-            <div>ID: {userData?.id}</div>
-            <div>Name: {userData?.name}</div>
-            <div>Email: {userData?.email}</div>
-            <div>Created: {userData?.createdAt}</div>
-            <div>Is Admin: {userData?.isAdmin ? "Yes" : "No"}</div>
-            <div>Is Deleted: {userData?.isDeleted ? "Yes" : "No"}</div>
-            <div>Average Speed: {userData?.averageSpeed}</div>
-            <div>Best Speed: {userData?.bestSpeed}</div>
-            <div>Matches Played: {userData?.matchesPlayed}</div>
-            <div>Matches Won: {userData?.matchesWon}</div>
+    <div className="flex h-screen items-center justify-center bg-gray-50 pt-20">
+      <div className="w-full max-w-lg rounded-lg bg-white p-8 shadow-xl">
+        <h1 className="mb-6 text-center text-3xl font-semibold">{session?.user?.name}&apos;s Profile</h1>
+        <div className="space-y-3 text-lg">
+          <div>
+            <strong>Average WPM:</strong> 100
           </div>
-          <Button variant={"destructive"} className="mt-8" onClick={handleDelete}>
-            Delete Account
-          </Button>
+          <div>
+            <strong>ID:</strong> {userData.id}
+          </div>
+          <div>
+            <strong>Name:</strong> {userData.name}
+          </div>
+          <div>
+            <strong>Email:</strong> {userData.email}
+          </div>
+          <div>
+            <strong>Created:</strong> {userData.createdAt}
+          </div>
+          <div>
+            <strong>Is Admin:</strong> {userData.isAdmin ? "Yes" : "No"}
+          </div>
+          <div>
+            <strong>Is Deleted:</strong> {userData.isDeleted ? "Yes" : "No"}
+          </div>
+          <div>
+            <strong>Average Speed:</strong> {Math.round(userData.averageSpeed)}
+          </div>
+          <div>
+            <strong>Best Speed:</strong> {Math.round(userData.bestSpeed)}
+          </div>
+          <div>
+            <strong>Matches Played:</strong> {userData.matchesPlayed}
+          </div>
+          <div>
+            <strong>Matches Won:</strong> {userData.matchesWon}
+          </div>
         </div>
-      )}
-    </>
+        <button
+          className="mt-8 w-full rounded-md bg-red-600 py-2 text-white transition duration-300 hover:bg-red-700"
+          onClick={handleDelete}
+        >
+          Delete Account
+        </button>
+      </div>
+    </div>
   );
 }
 
